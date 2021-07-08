@@ -11,7 +11,7 @@
   >
     <template v-slot:menuHeaderRender>
       <div>
-        <logo-svg />
+        <boe-svg />
         <h1>{{ title }}</h1>
       </div>
     </template>
@@ -54,6 +54,7 @@ import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import Ads from '@/components/Other/CarbonAds'
 import LogoSvg from '../assets/logo.svg?inline'
+import BoeSvg from '../assets/BOE.svg?inline'
 
 export default {
   name: 'BasicLayout',
@@ -62,6 +63,7 @@ export default {
     RightContent,
     GlobalFooter,
     LogoSvg,
+    BoeSvg,
     Ads
   },
   data () {

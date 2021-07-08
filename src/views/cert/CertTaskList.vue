@@ -14,7 +14,7 @@
       <span v-else>{{oa_no}}</span>
     </span>
       <span slot="cost" slot-scope="cost">
-      <span>￥ {{formatCost(cost)}}</span>
+      <span>￥ {{cost}}</span>
     </span>
       <span slot="cert_req" slot-scope="cert_req">
       <a-list item-layout="horizontal" :data-source="cert_req">
@@ -36,10 +36,10 @@
       <a-tag v-else color="grey">未知状态</a-tag>
     </span>
       <span slot="start_date" slot-scope="start_date">
-      <span>{{formatDate(start_date)}}</span>
+      <span>{{start_date}}</span>
     </span>
       <span slot="end_date" slot-scope="end_date">
-      <span>{{formatDate(end_date)}}</span>
+      <span>{{end_date}}</span>
     </span>
 
       <span slot="cert_no" slot-scope="cert_no">
