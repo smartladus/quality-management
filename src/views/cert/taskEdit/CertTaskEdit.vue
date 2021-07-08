@@ -1,42 +1,75 @@
 <template>
 <page-header-wrapper
-  :title='$route.params.taskNo === undefined ? "选择编辑方式" : taskNo'
+  :title='title'
 >
   <template
     v-slot:extra
-    v-if='$route.params.taskNo !== undefined'
+    v-if='taskNo !== undefined'
   >
     <a-button>取消</a-button>
     <a-button type="primary" >保存</a-button>
   </template>
 
-  <edit-mode-modal></edit-mode-modal>
-
-  <a-card
-    :bordered="false"
-    v-if='$route.params.taskNo === undefined'
-  >
-
+  <a-card v-if='taskNo === undefined'>
+    <a-empty>
+      <span slot="description">未选择编辑内容</span>
+      <a-button type="primary" @click='setModeSelectModal(true)'>
+        点击选择
+      </a-button>
+      <mode-select-modal
+        :visible='modeSelectModalVisible'
+        @close='setModeSelectModal(false)'
+        @editModeSelected='initEdit'
+      />
+    </a-empty>
   </a-card>
 
 </page-header-wrapper>
 </template>
 
 <script>
-import EditModeModal from '@/views/cert/taskEdit/EditModeModal'
+import ModeSelectModal from '@/views/cert/taskEdit/ModeSelectModal'
 
 export default {
   name: 'CertTaskEdit',
   data() {
     return {
-      taskNo: '新建任务'
+      taskNo: undefined,
+      modeSelectModalVisible: false
+    }
+  },
+  computed: {
+    title() {
+      switch (this.taskNo) {
+        case 'new':
+          return '新建任务'
+        case undefined :
+          return '###'
+        default:
+          return this.taskNo
+      }
     }
   },
   mounted() {
     this.taskNo = this.$route.params.taskNo;
   },
+  methods: {
+    setModeSelectModal(visible) {
+      this.modeSelectModalVisible = visible;
+    },
+    initEdit(form) {
+      console.log(form);
+      if (form.mode === 'new') {
+        this.taskNo = 'new';
+        this.$router.push('/cert/task/edit/new');
+      } else {
+        this.taskNo = form.taskNo;
+        this.$router.push('/cert/task/edit/' + form.taskNo);
+      }
+    }
+  },
   components: {
-    EditModeModal
+    ModeSelectModal
   }
 }
 </script>
