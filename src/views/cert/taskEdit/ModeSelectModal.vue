@@ -6,6 +6,7 @@
     :model='form'
     :label-col="labelCol"
     :wrapper-col="wrapperCol"
+    :rules="rules"
   >
     <a-form-model-item label='选择方式' prop='mode'>
       <a-radio-group v-model="form.mode">
@@ -23,7 +24,14 @@
       prop='taskNo'
       :required='form.mode !== "new"'
     >
-      <a-input v-model='form.taskNo'></a-input>
+      <a-auto-complete
+        v-model="form.taskNo"
+        :data-source="dataSource"
+        placeholder="输入任务编号"
+        @select="onSelect"
+        @search="onSearch"
+        @change="onChange"
+      />
     </a-form-model-item>
   </a-form-model>
 
@@ -39,13 +47,33 @@
 </template>
 
 <script>
+import {getCertTaskNoList} from '@/api/cert'
 
 export default {
   name: 'ModeSelectModal',
   data() {
+    // 自定义任务编号合法性规则
+    let validateTaskNo = (rule, value, callback) => {
+      let res = false;
+      // 如果模糊查找有结果，而且当前输入值在清单中能够找到，则合法，否则返回非法提示
+      if (this.dataSource.length > 0) {
+        for (let taskNo of this.dataSource) {
+          if (taskNo === value) {
+            res = true;
+            break;
+          }
+        }
+      }
+      if (res) {
+        callback()
+      } else {
+        callback(new Error('未找到匹配的任务编号'));
+      }
+    }
     return {
       labelCol: { span: 4 },
-      wrapperCol: { span: 14 },
+      wrapperCol: { span: 16 },
+      dataSource: [],
       form: {
         mode: 'new',
         taskNo: undefined
@@ -53,8 +81,7 @@ export default {
       rules: {
         taskNo: [
           {
-            required: true,
-            message: '请输入正确的任务编号',
+            validator: validateTaskNo,
             trigger: 'change'
           },
         ],
@@ -63,6 +90,18 @@ export default {
   },
   props: ['visible'],
   methods: {
+    onSearch(searchText) {
+      // 动态获取模糊查询结果
+      getCertTaskNoList(searchText).then(res => {
+        this.dataSource = res;
+      })
+    },
+    onSelect(value) {
+      console.log('onSelect', value);
+    },
+    onChange(value) {
+      console.log('onChange', value);
+    },
     handleCancel() {
       this.closeModal();
     },
@@ -81,13 +120,11 @@ export default {
       this.$emit('close');
       this.form.mode = 'new';
       this.form.taskNo = undefined;
-    }
+    },
   }
 }
 </script>
 
 <style scoped>
-a-modal{
-  width: 200px;
-}
+
 </style>

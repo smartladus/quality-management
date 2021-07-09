@@ -58,7 +58,7 @@ export default {
       this.modeSelectModalVisible = visible;
     },
     initEdit(form) {
-      console.log(form);
+      // console.log(form);
       if (form.mode === 'new') {
         this.taskNo = 'new';
         this.$router.push('/cert/task/edit/new');
