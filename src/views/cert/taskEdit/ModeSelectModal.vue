@@ -23,6 +23,8 @@
       label='任务编号'
       prop='taskNo'
       :required='form.mode !== "new"'
+
+      has-feedback
     >
       <a-auto-complete
         v-model="form.taskNo"
