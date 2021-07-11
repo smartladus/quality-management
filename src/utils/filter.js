@@ -24,5 +24,9 @@ Vue.filter('date', function (dataStr, pattern = 'YYYY-MM-DD') {
 })
 
 Vue.filter('replaceDivider', function (dataStr) {
-  return dataStr.replaceAll('|', ', ')
+  if (dataStr !== null) {
+    return dataStr.replaceAll('|', ', ')
+  } else {
+    return '-';
+  }
 })

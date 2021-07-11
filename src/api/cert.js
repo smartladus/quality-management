@@ -7,7 +7,8 @@ const certApi = {
   CertTask: 'http://localhost:8899/api/cert/task/get/',
   UploadTask: 'http://localhost:8899/api/cert/task/upload',
   TaskListTemplateDownload: 'http://localhost:8899/api/cert/task/download/template',
-  DeleteTask: 'http://localhost:8899/api/cert/task/delete/'
+  DeleteTask: 'http://localhost:8899/api/cert/task/delete/',
+  CertCategoryOfRegion: 'http://localhost:8899/api/cert/category/get',
 }
 
 export function getRegionList() {
@@ -59,6 +60,16 @@ export function deleteTask(taskNo) {
 
 export function templateDownloadUrl() {
   return certApi.TaskListTemplateDownload;
+}
+
+export function getCategoriesByRegion(region) {
+  return request({
+    url: certApi.CertCategoryOfRegion,
+    method: 'get',
+    params: {
+      region: region
+    }
+  })
 }
 
 

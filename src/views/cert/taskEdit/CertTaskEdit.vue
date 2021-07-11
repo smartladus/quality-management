@@ -2,12 +2,6 @@
 <page-header-wrapper
   :title='title'
 >
-  <template v-slot:extra v-if='taskNo !== undefined'>
-    <a-button>取消</a-button>
-    <a-button type="primary" @click='saveTask'>保存</a-button>
-    <a-button @click='printForm'>打印</a-button>
-  </template>
-
   <a-card v-if='taskNo === undefined' :bordered="false">
     <a-empty>
       <span slot="description">未选择编辑内容</span>
@@ -22,27 +16,25 @@
     </a-empty>
   </a-card>
   <template v-else>
-
     <a-form-model
       :model='form'
       :labelCol="{span: 8}"
       :wrapperCol="{span: 6}"
     >
-
       <a-card class='card' :bordered="false" title="进度及待办">
         <task-steps />
         <a-divider></a-divider>
         <mark-down-editor
           title='待办事项'
           placeHolder='暂未添加待办事项'
-          :content='form.todo'
+          :content='form.todo === null ? "" : form.todo'
           @updated='updateTodo'
         />
         <a-divider></a-divider>
         <mark-down-editor
           title='备注'
           placeHolder='暂未添加备注'
-          :content='form.comments'
+          :content='form.comments === null ? "" : form.comments'
           @updated='updateComments'
         />
       </a-card>
@@ -74,7 +66,11 @@
           </a-select>
         </a-form-model-item>
         <a-form-model-item label="认证名称" prop="cert_name" required>
-          <a-input v-model="form.cert_name"/>
+          <a-select v-model="form.cert_name" placeholder="选择认证">
+            <a-select-option v-for="category in certCategories" :value="category.cert_name" key="category.cert_name">
+              {{ category.cert_name }}
+            </a-select-option>
+          </a-select>
         </a-form-model-item>
         <a-form-model-item label="获证方式" prop="cert_method" required>
           <a-input v-model="form.cert_method"/>
@@ -98,7 +94,13 @@
       <task-record-time-line></task-record-time-line>
     </a-card>
   </template>
-
+  <footer-tool-bar v-if='taskNo !== undefined' :collapsed="sideCollapsed">
+    <a-space>
+      <a-button @click='printForm'>打印</a-button>
+      <a-button>取消</a-button>
+      <a-button type="primary" @click='saveTask'>保存</a-button>
+    </a-space>
+  </footer-tool-bar>
 </page-header-wrapper>
 </template>
 
@@ -107,16 +109,20 @@ import ModeSelectModal from '@/views/cert/taskEdit/ModeSelectModal'
 import TaskRecordTimeLine from '@/views/cert/taskEdit/TaskRecordTimeLine'
 import TaskSteps from '@/views/cert/taskEdit/TaskSteps'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
-import {getRegionList, getCertTask} from '@/api/cert'
+import {getRegionList, getCertTask, getCategoriesByRegion} from '@/api/cert'
+import { baseMixin } from '@/store/app-mixin'
+import FooterToolBar from '@/components/FooterToolbar'
 
 export default {
   name: 'CertTaskEdit',
+  mixins: [baseMixin],
   data() {
     return {
       number: 20000,
       taskNo: undefined,
       modeSelectModalVisible: false,
       regions:[],
+      certCategories: [],
       curRegion: undefined,
       form: {
         oa_no: '',
@@ -160,12 +166,19 @@ export default {
   },
   watch: {
     taskNo(val, oldVal) {
+      console.log(`taskNo changed from ${oldVal} to ${val}`);
       if (val !== 'new' && val !== undefined) {
         getCertTask(val).then(res => {
           this.form = res;
           this.curRegion = this.form.region;
         })
       }
+    },
+    curRegion(val, oldVal) {
+      console.log(`curRegion changed from ${oldVal} to ${val}`);
+      getCategoriesByRegion(val).then(categories => {
+        this.certCategories = categories;
+      })
     }
   },
   methods: {
@@ -213,14 +226,15 @@ export default {
       console.log('saving task ============================================')
     },
     printForm() {
-      console.log(this.form)
+      console.log(this.form);
     }
   },
   components: {
     ModeSelectModal,
     TaskRecordTimeLine,
     TaskSteps,
-    MarkDownEditor
+    MarkDownEditor,
+    FooterToolBar,
   }
 }
 </script>

@@ -2,75 +2,75 @@
 <div class='main'>
   <div class='title'>
     {{ title }}
-    <a-button type='link' @click='setMode("edit")' icon='edit'/>
+    <a-button type='link' @click='edit()' icon='edit'/>
   </div>
-  <mavon-editor
-    class="editor"
-    ref="md"
-    :placeholder="placeHolder"
-    :boxShadow="false"
-    v-model="curContent"
-    :toolbars="toolbars"
-    :subfield="false"
-    :toolbarsFlag='editorSetting.toolbarsFlag'
-    :editable="editorSetting.editable"
-    :defaultOpen="editorSetting.defaultOpen"
-  />
-  <a-space class="actions" v-if='mode === "edit"'>
-    <a-button @click="cancel">取消</a-button>
-    <a-button type="primary" @click="save">确认</a-button>
-  </a-space>
+  <div class='editor'>
+    <markdown-preview
+      v-if='isPreview'
+      :initialValue='curContent'
+    />
+    <template v-else>
+      <markdown-pro
+        v-model='curContent'
+        :height='300'
+        :toolbars='toolbars'
+        :bordered='false'
+      />
+      <a-space class="actions">
+        <a-button @click="cancel">取消</a-button>
+        <a-button type="primary" @click="save">确认</a-button>
+      </a-space>
+    </template>
+  </div>
 </div>
 
 </template>
 
 <script>
+
+import {MarkdownPro, MarkdownPreview} from 'vue-meditor'
+
 export default {
   name: 'MarkDownEditor',
   data() {
     return {
       task_stat: undefined,
-      mode: 'preview',
-      editorSetting: {
-        toolbarsFlag: false,
-        editable: false,
-        defaultOpen: 'preview'
-      },
+      isPreview: true,
       oriContent: '',
       curContent: '',
       toolbars: {
-        bold: true, // 粗体
-        italic: true, // 斜体
-        ol: true, // 有序列表
-        ul: true, // 无序列表
-        undo: true, // 上一步
-        redo: true, // 下一步
+        h1: false,
+        h2: false,
+        h3: false,
+        hr: false,
+        theme: false,
+        quote: false,
+        image: false,
+        table: false,
+        code: false,
+        link: false,
+        fullscreen: false,
+        preview: false,
+        split: false,
       },
     }
   },
   watch: {
-    mode(val, oldVal) {
-      if (val === 'edit') {
-        this.editorSetting.toolbarsFlag = true;
-        this.editorSetting.editable = true;
-        this.editorSetting.defaultOpen = 'edit';
-      } else {
-        this.editorSetting.toolbarsFlag = false;
-        this.editorSetting.editable = false;
-        this.editorSetting.defaultOpen = 'preview';
-      }
+    content(val, oldVal) {
+      this.oriContent = val;
+      this.curContent = val;
     }
   },
   methods: {
-    setMode(mode) {
-      this.mode = mode;
+    edit() {
+      this.isPreview = false;
     },
     save() {
-      this.mode = 'preview';
+      this.isPreview = true;
       this.$emit('updated', this.curContent);
     },
     cancel() {
-      this.mode = 'preview';
+      this.isPreview = true;
       this.curContent = this.oriContent;
     }
   },
@@ -79,6 +79,10 @@ export default {
     this.oriContent = this.content;
   },
   props: ['title', 'placeHolder', 'content'],
+  components: {
+    MarkdownPro,
+    MarkdownPreview
+  }
 }
 </script>
 
@@ -88,15 +92,12 @@ export default {
   margin-bottom: 24px;
 }
 .editor{
-  z-index: 1;
-  border: 1px solid #d9d9d9;
-  min-height: 0;
-  height: 200px;
+  border: #d6d6d6 1px solid;
+  border-radius: 2px;
 }
 .actions{
-  z-index: 10;
   position: absolute;
-  top: 54px;
+  top: 53px;
   right: 5px;
 }
 .title {
