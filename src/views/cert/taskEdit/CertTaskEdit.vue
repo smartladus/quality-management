@@ -21,6 +21,7 @@
     </a-empty>
   </a-card>
   <template v-else>
+
     <a-form-model
       :model='form'
       :labelCol="{span: 8}"
@@ -106,6 +107,7 @@ export default {
   name: 'CertTaskEdit',
   data() {
     return {
+      number: 20000,
       taskNo: undefined,
       modeSelectModalVisible: false,
       regions:[],

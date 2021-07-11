@@ -37,6 +37,6 @@ export default {
   'menu.account.trigger': '触发报错',
   'menu.account.logout': '退出登录',
   'menu.cert': '认证管理',
-  'menu.cert.task.list': '任务清单',
+  'menu.cert.task.list': '任务列表',
   'menu.cert.task.edit': '任务编辑',
 }

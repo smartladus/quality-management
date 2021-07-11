@@ -21,7 +21,7 @@
     <template v-slot:headerContentRender>
       <div>
         <a-tooltip title="刷新页面">
-          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="() => { $message.info('只是一个DEMO') }" />
+          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="reloadPage" />
         </a-tooltip>
       </div>
     </template>
@@ -170,6 +170,9 @@ export default {
           }
           break
       }
+    },
+    reloadPage() {
+      console.log("page:" + this.$route.fullPath)
     }
   }
 }
