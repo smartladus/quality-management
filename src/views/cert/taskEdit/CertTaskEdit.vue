@@ -5,6 +5,7 @@
   <template v-slot:extra v-if='taskNo !== undefined'>
     <a-button>取消</a-button>
     <a-button type="primary" @click='saveTask'>保存</a-button>
+    <a-button @click='printForm'>打印</a-button>
   </template>
 
   <a-card v-if='taskNo === undefined' :bordered="false">
@@ -38,7 +39,12 @@
           @updated='updateTodo'
         />
         <a-divider></a-divider>
-        <mark-down-editor title='备注' placeHolder='暂未添加备注'/>
+        <mark-down-editor
+          title='备注'
+          placeHolder='暂未添加备注'
+          :content='form.comments'
+          @updated='updateComments'
+        />
       </a-card>
 
       <a-card class='card' title='基本信息' :bordered="false">
@@ -123,7 +129,8 @@ export default {
         sup_name: undefined,
         sup_model: undefined,
         jv_model: undefined,
-        todo: 'hahahah',
+        todo: undefined,
+        comments: undefined
       }
     }
   },
@@ -143,7 +150,7 @@ export default {
     this.taskNo = this.$route.params.taskNo;
     getRegionList().then(res => {
       this.regions = res;
-      console.log('认证区域列表已获取：', res)
+      // console.log('认证区域列表已获取：', res)
     }).catch(err => {
       this.$notification['error']({
         message: '获取认证区域列表失败:',
@@ -156,6 +163,7 @@ export default {
       if (val !== 'new' && val !== undefined) {
         getCertTask(val).then(res => {
           this.form = res;
+          this.curRegion = this.form.region;
         })
       }
     }
@@ -175,6 +183,7 @@ export default {
       }
     },
     onRegionChange(val) {
+      console.log(`region changed to ${val}`)
       if (this.curRegion === undefined) {
         this.curRegion = val;
         return;
@@ -197,9 +206,15 @@ export default {
     updateTodo(content) {
       this.form.todo = content;
     },
+    updateComments(content) {
+      this.form.comments = content;
+    },
     saveTask() {
       console.log('saving task ============================================')
     },
+    printForm() {
+      console.log(this.form)
+    }
   },
   components: {
     ModeSelectModal,

@@ -22,3 +22,7 @@ Vue.filter('moment', function (dataStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
 Vue.filter('date', function (dataStr, pattern = 'YYYY-MM-DD') {
   return moment(dataStr).format(pattern)
 })
+
+Vue.filter('replaceDivider', function (dataStr) {
+  return dataStr.replaceAll('|', ', ')
+})

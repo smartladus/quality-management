@@ -34,11 +34,41 @@
       bordered
     >
       <span slot="oa_no" slot-scope="oa_no">
-        <span v-if="oa_no === null">-</span>
-        <span v-else>{{oa_no}}</span>
+        <span>{{ oa_no === null ? '-' : oa_no }}</span>
       </span>
-        <span slot="cost" slot-scope="cost">
+      <span slot="cost" slot-scope="cost">
         <span>￥ {{cost | numberFormat}}</span>
+      </span>
+
+      <span slot="cert_method" slot-scope="cert_method">
+        <span>{{ certMethodMap[cert_method] }}</span>
+      </span>
+
+      <span slot="cert_method_desc" slot-scope="cert_method_desc">
+        <span>{{ cert_method_desc === null ? '-' : cert_method_desc }}</span>
+      </span>
+
+      <span slot="sup_model" slot-scope="sup_model">
+        <a-popover placement="topLeft">
+          <template slot="content">
+            <div class='model_pop'>
+              {{ sup_model | replaceDivider }}
+            </div>
+          </template>
+          <span>{{ sup_model | replaceDivider }}</span>
+        </a-popover>
+      </span>
+
+
+      <span slot="jv_model" slot-scope="jv_model">
+        <a-popover placement="topLeft">
+          <template slot="content">
+            <div class='model_pop'>
+              {{ jv_model | replaceDivider }}
+            </div>
+          </template>
+          <span>{{ jv_model | replaceDivider }}</span>
+        </a-popover>
       </span>
 
       <span slot="task_stat" slot-scope="task_stat">
@@ -98,6 +128,13 @@ const taskStatMap = {
   },
 }
 
+const certMethodMap = {
+  ORIG: '原型',
+  DERI: '派生',
+  SDoC: '自我声明',
+  CHAN: '变更'
+}
+
 const columns = [
   {
     title: '任务编号',
@@ -155,7 +192,16 @@ const columns = [
   {
     title: '获证方式',
     dataIndex: 'cert_method',
+    scopedSlots: { customRender: 'cert_method' },
     key: 'cert_method',
+    width: 120,
+    align: 'center',
+  },
+  {
+    title: '获证方式说明',
+    dataIndex: 'cert_method_desc',
+    scopedSlots: { customRender: 'cert_method_desc' },
+    key: 'cert_method_desc',
     width: 150,
     align: 'center',
   },
@@ -169,6 +215,7 @@ const columns = [
   {
     title: '供应商型号范围',
     dataIndex: 'sup_model',
+    scopedSlots: { customRender: 'sup_model' },
     key: 'sup_model',
     width: 200,
     ellipsis: true,
@@ -176,6 +223,7 @@ const columns = [
   {
     title: 'JV型号范围',
     dataIndex: 'jv_model',
+    scopedSlots: { customRender: 'jv_model' },
     key: 'jv_model',
     width: 200,
     ellipsis: true,
@@ -208,8 +256,9 @@ const columns = [
     title: '证书编号',
     key: 'cert_no',
     dataIndex: 'cert_no',
-    width: 300,
+    width: 200,
     scopedSlots: { customRender: 'cert_no' },
+    align: 'center',
   },
   {
     title: '操作',
@@ -226,6 +275,7 @@ export default {
   data() {
     return {
       taskStatMap,
+      certMethodMap,
       tasks: [],
       listLoading: false,
       taskUploadVisible: false,
@@ -253,8 +303,8 @@ export default {
     this.getAllTasks();
   },
   methods: {
-    goToEdit(task) {
-      this.$router.push('/cert/task/edit/' + task.task_no);
+    goToEdit(taskNo) {
+      this.$router.push('/cert/task/edit/' + taskNo);
     },
     getAllTasks() {
       this.listLoading = true;
@@ -314,5 +364,11 @@ export default {
 }
 .task-action-delete {
   color: #ED6567;
+}
+.model_pop{
+  max-width: 300px;
+  max-height: 120px;
+  word-wrap:break-word;
+  overflow-y: auto;
 }
 </style>
