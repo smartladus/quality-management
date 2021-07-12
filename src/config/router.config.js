@@ -25,13 +25,13 @@ export const asyncRouterMap = [
           {
             path: '/cert/task/list',
             name: 'CertTaskList',
-            component: () => import('@/views/cert/taskList/CertTaskList'),
+            component: () => import('@/views/cert/task/taskList/CertTaskList'),
             meta: { title: 'menu.cert.task.list', keepAlive: true }
           },
           {
             path: '/cert/task/edit/:taskNo(.*)?',
             name: 'CertTaskEdit',
-            component: () => import('@/views/cert/taskEdit/CertTaskEdit'),
+            component: () => import('@/views/cert/task/taskEdit/CertTaskEdit'),
             meta: { title: 'menu.cert.task.edit', keepAlive: true }
           }
         ]

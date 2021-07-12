@@ -72,8 +72,7 @@
       </span>
 
       <span slot="task_stat" slot-scope="task_stat">
-        <a-tag v-if="taskStatMap[task_stat] !== null" :color="taskStatMap[task_stat].color">{{ taskStatMap[task_stat].name }}</a-tag>
-        <a-tag v-else color="gray">未知状态</a-tag>
+        <task-stat-tag :task-stat='task_stat'/>
       </span>
         <span slot="start_date" slot-scope="start_date">
         <span>{{start_date | date}}</span>
@@ -99,7 +98,8 @@
 
 <script>
 import { getCertTaskList, deleteTask } from '@/api/cert'
-import TaskUploadModal from '@/views/cert/taskList/TaskUploadModal'
+import TaskUploadModal from '@/views/cert/task/taskList/TaskUploadModal'
+import TaskStatTag from '@/views/cert/task/TaskStatTag'
 
 const taskStatMap = {
   NEW: {
@@ -351,7 +351,8 @@ export default {
     }
   },
   components: {
-    TaskUploadModal
+    TaskUploadModal,
+    TaskStatTag
   }
 }
 </script>

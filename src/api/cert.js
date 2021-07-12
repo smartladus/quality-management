@@ -9,6 +9,7 @@ const certApi = {
   TaskListTemplateDownload: 'http://localhost:8899/api/cert/task/download/template',
   DeleteTask: 'http://localhost:8899/api/cert/task/delete/',
   CertCategoryOfRegion: 'http://localhost:8899/api/cert/category/get',
+  GetTaskRecord: 'http://localhost:8899/api/cert/task/record/get/',
 }
 
 export function getRegionList() {
@@ -69,6 +70,13 @@ export function getCategoriesByRegion(region) {
     params: {
       region: region
     }
+  })
+}
+
+export function getTaskRecord(taskNo) {
+  return request({
+    url: certApi.GetTaskRecord + taskNo,
+    method: 'get'
   })
 }
 

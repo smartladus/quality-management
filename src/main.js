@@ -22,6 +22,10 @@ import './core/use' // use lazy load components
 import './utils/filter' // global filter
 import './global.less' // global style
 
+import mavonEditor from "mavon-editor";
+import "mavon-editor/dist/css/index.css";
+Vue.use(mavonEditor);
+
 Vue.config.productionTip = false
 
 // mount axios to `Vue.$http` and `this.$http`

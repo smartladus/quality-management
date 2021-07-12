@@ -24,16 +24,21 @@
       <a-card class='card' :bordered="false" title="进度及待办">
         <task-steps />
         <a-divider></a-divider>
+        <div>试试markdown编辑器啊</div>
+        <mark-down-editor
+          title='hahah'
+          placeholder='啥也没记'
+          mode='preview'
+        />
+        <a-divider></a-divider>
         <mark-down-editor
           title='待办事项'
-          placeHolder='暂未添加待办事项'
           :content='form.todo === null ? "" : form.todo'
           @updated='updateTodo'
         />
         <a-divider></a-divider>
         <mark-down-editor
           title='备注'
-          placeHolder='暂未添加备注'
           :content='form.comments === null ? "" : form.comments'
           @updated='updateComments'
         />
@@ -91,7 +96,7 @@
     </a-form-model>
 
     <a-card class='card' title='历史记录' :bordered="false">
-      <task-record-time-line></task-record-time-line>
+      <task-record-time-line :task-no='taskNo'/>
     </a-card>
   </template>
   <footer-tool-bar v-if='taskNo !== undefined' :collapsed="sideCollapsed">
@@ -105,9 +110,9 @@
 </template>
 
 <script>
-import ModeSelectModal from '@/views/cert/taskEdit/ModeSelectModal'
-import TaskRecordTimeLine from '@/views/cert/taskEdit/TaskRecordTimeLine'
-import TaskSteps from '@/views/cert/taskEdit/TaskSteps'
+import ModeSelectModal from '@/views/cert/task/taskEdit/ModeSelectModal'
+import TaskRecordTimeLine from '@/views/cert/task/taskEdit/TaskRecordTimeLine'
+import TaskSteps from '@/views/cert/task/taskEdit/TaskSteps'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
 import {getRegionList, getCertTask, getCategoriesByRegion} from '@/api/cert'
 import { baseMixin } from '@/store/app-mixin'
@@ -218,9 +223,11 @@ export default {
     },
     updateTodo(content) {
       this.form.todo = content;
+      console.log(`todo updated: ${content}`)
     },
     updateComments(content) {
       this.form.comments = content;
+      console.log(`comments updated: ${content}`)
     },
     saveTask() {
       console.log('saving task ============================================')
