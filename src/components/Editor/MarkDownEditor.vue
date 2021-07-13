@@ -29,8 +29,7 @@
     :toolbarsFlag='curMode === "edit"'
     previewBackground='#FFFFFF'
     v-model='curContent'
-    @click='edit'
-    @blur='save'
+    @change='onChange'
   />
 </a-card>
 </template>
@@ -41,8 +40,9 @@ export default {
   name: 'MarkDownEditor',
   data() {
     return {
-      curMode: 'preview',
-      curContent: '',
+      curMode: this.mode,
+      curContent: this.content,
+      oriContent: this.content,
       toolbars: {
         bold: true, // 粗体
         italic: true, // 斜体
@@ -63,10 +63,8 @@ export default {
       type: String,
       default: 'edit',
     },
-    // 初始内容
-    content: {
-      default: '',
-    },
+    // 内容,v-model
+    content: String,
     // 占位内容
     placeholder: {
       type: String,
@@ -78,12 +76,19 @@ export default {
       default: true
     }
   },
+  model: {
+    prop: 'content',
+    event: 'change'
+  },
   watch: {
     content(val, oldVal) {
       this.curContent = val;
     },
   },
   methods: {
+    onChange(val) {
+      this.$emit('change', val);
+    },
     // 进入编辑模式
     edit() {
       this.curMode = 'edit';
@@ -94,28 +99,25 @@ export default {
       if (this.previewAfterAction) {
         this.curMode = 'preview'
       }
-      this.$emit('save', this.curContent);
+      this.oriContent = this.curContent;
+      this.$emit('save');
     },
     cancel() {
       // 默认取消后自动进入预览模式
       if (this.previewAfterAction) {
         this.curMode = 'preview';
       }
-      this.curContent = this.content;
+      this.curContent = this.oriContent;
       this.$emit('cancel');
     },
     // 重置编辑器，编辑模式，内容为空
-    reset() {
-      this.curMode = 'edit';
-      this.curContent = '';
-    },
-    getContent() {
-      return this.curContent;
-    }
+    // reset() {
+    //   this.curMode = 'edit';
+    //   this.curContent = '';
+    // }
   },
   mounted() {
-    this.curContent = this.content;
-    this.curMode = this.mode;
+
   },
 }
 </script>

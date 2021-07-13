@@ -27,15 +27,13 @@
         <mark-down-editor
           title='待办事项'
           mode='preview'
-          :content='form.todo'
-          @save='updateTodo'
+          v-model='form.todo'
         />
         <a-divider></a-divider>
         <mark-down-editor
           title='备注'
           mode='preview'
-          :content='form.comments'
-          @save='updateComments'
+          v-model='form.comments'
         />
         <template v-slot:extra>
           <task-stat-selector
@@ -95,7 +93,7 @@
       </a-card>
     </a-form-model>
 
-    <a-card v-if='taskNo' class='card' title='历史记录' :bordered="false">
+    <a-card class='card' title='历史记录' :bordered="false">
       <task-record-time-line :task-no='taskNo'/>
     </a-card>
   </template>
@@ -233,14 +231,6 @@ export default {
           self.form.region = self.curRegion;
         },
       });
-    },
-    updateTodo(content) {
-      this.form.todo = content;
-      console.log(`todo updated: ${content}`)
-    },
-    updateComments(content) {
-      this.form.comments = content;
-      console.log(`comments updated: ${content}`)
     },
     saveTask() {
       console.log('saving task ============================================')

@@ -36,6 +36,12 @@ export const asyncRouterMap = [
           }
         ]
       },
+      {
+        path: '/test',
+        name: 'test',
+        component: () => import('@/views/test/Test'),
+        meta: { title: '测试页面', keepAlive: true }
+      },
       // dashboard
       {
         path: '/dashboard',

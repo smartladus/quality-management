@@ -6,9 +6,10 @@
     ref='newRecEditor'
     mode='edit'
     :preview-after-action='false'
+    v-model='newRecord.content'
     @save='insertRecord'
     @cancel='resetNewRecEditor'
-    v-show='newRecEditorVisible'
+    v-if='newRecEditorVisible'
   >
     <template v-slot:extra-of-edit>
       <a-date-picker
@@ -29,8 +30,8 @@
         mode='preview'
         action-style='icon'
         :title='record.record_no'
-        :content='record.content'
-        @save='updateRecord'
+        v-model='record.content'
+        @save='updateRecord(record)'
       >
         <template v-slot:extra-of-preview>
           <task-stat-tag :task-stat='record.task_stat'/>
@@ -59,6 +60,7 @@ export default {
       newRecord: {
         task_stat: undefined,
         record_time: moment(),
+        content: '',
       },
       taskRecords: [],
       newRecEditorVisible: false
@@ -84,9 +86,9 @@ export default {
     showNewRecEditor() {
       this.newRecEditorVisible = true;
     },
-    updateRecord(content) {
+    updateRecord(record) {
       // 解决思路是吧editor的content作为v-model传出来就行了
-      console.log('更新记录：', content);
+      console.log('更新记录：', record);
       // todo 更新记录
     },
     test() {
@@ -97,9 +99,13 @@ export default {
         record_no: null,
         task_no: this.taskNo,
         task_stat: this.newRecord.task_stat,
-        content: content,
+        content: this.newRecord.content,
         record_time: this.newRecord.record_time
       }
+
+      // console.log(record)
+      // this.resetNewRecEditor();
+      // return
 
       if (record.task_stat === undefined) {
         this.$notification['error']( {
@@ -136,7 +142,7 @@ export default {
     },
     resetNewRecEditor() {
       this.newRecEditorVisible = false;
-      this.$refs.newRecEditor.reset();
+      this.newRecord.content = '';
       this.newRecord.task_stat = undefined;
     },
     deleteRecord(recNo){
