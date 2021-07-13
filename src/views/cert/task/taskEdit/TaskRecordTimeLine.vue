@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import {getTaskRecord, insertTaskRecord, deleteTaskRecord} from '@/api/cert'
+import {getTaskRecord, insertTaskRecord, updateTaskRecord, deleteTaskRecord} from '@/api/cert'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
 import TaskStatTag from '@/views/cert/task/TaskStatTag'
 import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
@@ -89,7 +89,12 @@ export default {
     updateRecord(record) {
       // 解决思路是吧editor的content作为v-model传出来就行了
       console.log('更新记录：', record);
-      // todo 更新记录
+      // todo 更新记录，先检查下传过来的record对不对
+      updateTaskRecord(record).then(res => {
+
+      }).catch(err => {
+        // todo 如果更新记录失败了，因为v-model存在，已经改掉了界面显示，好像有点问题
+      });
     },
     test() {
       console.log('嘻嘻');

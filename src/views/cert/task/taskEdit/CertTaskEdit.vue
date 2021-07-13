@@ -93,7 +93,7 @@
       </a-card>
     </a-form-model>
 
-    <a-card class='card' title='历史记录' :bordered="false">
+    <a-card v-if='taskNo !== undefined && taskNo !== "new"' class='card' title='历史记录' :bordered="false">
       <task-record-time-line :task-no='taskNo'/>
     </a-card>
   </template>
