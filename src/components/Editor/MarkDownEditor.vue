@@ -108,6 +108,9 @@ export default {
     reset() {
       this.curMode = 'edit';
       this.curContent = '';
+    },
+    getContent() {
+      return this.curContent;
     }
   },
   mounted() {

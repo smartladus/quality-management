@@ -19,13 +19,18 @@ export default {
   data() {
     return {
       taskStatMap,
-      stat: this.defaultStat,
+      stat: this.value,
     }
   },
-  props: ['value', 'defaultStat'],
+  props: ['value'],
   model: {
     prop: 'value',
     event: 'change'
+  },
+  watch: {
+    value(val, oldVal) {
+      this.stat = val;
+    }
   },
   methods: {
     onChange(val) {

@@ -37,6 +37,11 @@
           :content='form.comments'
           @save='updateComments'
         />
+        <template v-slot:extra>
+          <task-stat-selector
+            v-model='form.task_stat'
+          />
+        </template>
       </a-card>
 
       <a-card class='card' title='基本信息' :bordered="false">
@@ -90,7 +95,7 @@
       </a-card>
     </a-form-model>
 
-    <a-card class='card' title='历史记录' :bordered="false">
+    <a-card v-if='taskNo' class='card' title='历史记录' :bordered="false">
       <task-record-time-line :task-no='taskNo'/>
     </a-card>
   </template>
@@ -112,13 +117,13 @@ import MarkDownEditor from '@/components/Editor/MarkDownEditor'
 import {getRegionList, getCertTask, getCategoriesByRegion} from '@/api/cert'
 import { baseMixin } from '@/store/app-mixin'
 import FooterToolBar from '@/components/FooterToolbar'
+import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
 
 export default {
   name: 'CertTaskEdit',
   mixins: [baseMixin],
   data() {
     return {
-      number: 20000,
       taskNo: undefined,
       modeSelectModalVisible: false,
       regions:[],
@@ -146,7 +151,7 @@ export default {
         case 'new':
           return '新建任务'
         case undefined :
-          return '###'
+          return '请选择编辑内容'
         default:
           return this.taskNo
       }
@@ -250,6 +255,7 @@ export default {
     TaskSteps,
     MarkDownEditor,
     FooterToolBar,
+    TaskStatSelector,
   }
 }
 </script>

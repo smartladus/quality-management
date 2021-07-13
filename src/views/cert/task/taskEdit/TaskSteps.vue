@@ -5,10 +5,8 @@
       <span>{{step.title}}</span>
     </template>
     <template v-slot:description>
-      <div class="antd-pro-pages-profile-advanced-style-stepDescription">
-        {{step.desc}}
-        <div>2016-12-12</div>
-      </div>
+      {{step.desc}}
+      <div>2016-12-12</div>
     </template>
   </a-step>
 </a-steps>

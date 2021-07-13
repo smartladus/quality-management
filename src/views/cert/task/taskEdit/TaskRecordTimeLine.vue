@@ -1,6 +1,5 @@
 <template>
 <div>
-<!--  <a-button @click='print'>print</a-button>-->
   <a-button icon='plus' type='dashed' block @click='showNewRecEditor'>新建一条记录</a-button>
   <mark-down-editor
     class='newRecEditor'
@@ -31,7 +30,7 @@
         action-style='icon'
         :title='record.record_no'
         :content='record.content'
-        @updated='updateRecord'
+        @save='updateRecord'
       >
         <template v-slot:extra-of-preview>
           <task-stat-tag :task-stat='record.task_stat'/>
@@ -85,9 +84,13 @@ export default {
     showNewRecEditor() {
       this.newRecEditorVisible = true;
     },
-    updateRecord(record) {
-      console.log('更新记录：', {record});
+    updateRecord(content) {
+      // 解决思路是吧editor的content作为v-model传出来就行了
+      console.log('更新记录：', content);
       // todo 更新记录
+    },
+    test() {
+      console.log('嘻嘻');
     },
     insertRecord(content) {
       let record = {
@@ -160,9 +163,6 @@ export default {
         })
       });
     },
-    print() {
-      console.log(this.taskStat, this.newRecord)
-    }
   }
 }
 </script>
