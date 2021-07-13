@@ -1,35 +1,66 @@
 <template>
 <div>
+<!--  <a-button @click='print'>print</a-button>-->
   <a-button icon='plus' type='dashed' block @click='showNewRecEditor'>新建一条记录</a-button>
-  <task-record-editor
-    init-mode='edit'
-    :ori-record='newRecord()'
-    @updated='saveRecord'
+  <mark-down-editor
+    class='newRecEditor'
+    ref='newRecEditor'
+    mode='edit'
+    :preview-after-action='false'
+    @save='insertRecord'
+    @cancel='resetNewRecEditor'
     v-show='newRecEditorVisible'
-  />
+  >
+    <template v-slot:extra-of-edit>
+      <a-date-picker
+        show-time
+        placeholder="选择时间"
+        v-model='newRecord.record_time'
+      />
+      <task-stat-selector
+        v-model='newRecord.task_stat'
+      />
+    </template>
+  </mark-down-editor>
   <a-divider></a-divider>
   <a-empty v-if='taskRecords.length === 0'/>
   <a-timeline v-else>
     <a-timeline-item v-for="record in taskRecords" :key="record.record_no">
-      <task-record-editor
-        init-mode='preview'
-        :ori-record='record'
+      <mark-down-editor
+        mode='preview'
+        action-style='icon'
+        :title='record.record_no'
+        :content='record.content'
         @updated='updateRecord'
-      />
+      >
+        <template v-slot:extra-of-preview>
+          <task-stat-tag :task-stat='record.task_stat'/>
+          <span>{{record.record_time | dayjs}}</span>
+          <a-popconfirm title="确认删除记录？" ok-text="确认" cancel-text="取消" @confirm="deleteRecord(record.record_no)">
+            <a-button type="danger">删除</a-button>
+          </a-popconfirm>
+        </template>
+      </mark-down-editor>
     </a-timeline-item>
   </a-timeline>
 </div>
 </template>
 
 <script>
-import {getTaskRecord} from '@/api/cert'
-import {MarkdownPro, MarkdownPreview} from 'vue-meditor'
-import TaskRecordEditor from '@/views/cert/task/taskEdit/TaskRecordEditor'
+import {getTaskRecord, insertTaskRecord, deleteTaskRecord} from '@/api/cert'
+import MarkDownEditor from '@/components/Editor/MarkDownEditor'
+import TaskStatTag from '@/views/cert/task/TaskStatTag'
+import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
+import moment from 'moment'
 
 export default {
   name: 'TaskRecordTimeLine',
   data() {
     return{
+      newRecord: {
+        task_stat: undefined,
+        record_time: moment(),
+      },
       taskRecords: [],
       newRecEditorVisible: false
     }
@@ -46,9 +77,9 @@ export default {
     })
   },
   components: {
-    MarkdownPro,
-    MarkdownPreview,
-    TaskRecordEditor
+    MarkDownEditor,
+    TaskStatTag,
+    TaskStatSelector
   },
   methods: {
     showNewRecEditor() {
@@ -58,21 +89,86 @@ export default {
       console.log('更新记录：', {record});
       // todo 更新记录
     },
-    saveRecord(record) {
-      console.log('新增记录：', {record});
-      // todo 新增记录
-    },
-    newRecord() {
-      return {
+    insertRecord(content) {
+      let record = {
+        record_no: null,
         task_no: this.taskNo,
-        record_no: 'xx',
-        content: 'haha',
-
+        task_stat: this.newRecord.task_stat,
+        content: content,
+        record_time: this.newRecord.record_time
       }
+
+      if (record.task_stat === undefined) {
+        this.$notification['error']( {
+          message: '未选择记录的任务状态！'
+        });
+        return;
+      }
+      if (content === undefined || content === null || content === '') {
+        this.$notification['error']( {
+          message: '未输入任何记录内容！'
+        });
+        return;
+      }
+      if (record.record_time === null || record.record_time === undefined) {
+        this.$notification['error']( {
+          message: '未选择记录时间！'
+        });
+        return;
+      }
+
+      insertTaskRecord(record).then(res => {
+        console.log('新增记录：', {res});
+        this.taskRecords.unshift(res);
+        this.$notification['success']({
+          message: '上传任务记录成功'
+        })
+      }).catch(err => {
+        this.$notification['error']({
+          message: '上传任务记录失败:',
+          description: err
+        })
+      })
+      this.resetNewRecEditor();
+    },
+    resetNewRecEditor() {
+      this.newRecEditorVisible = false;
+      this.$refs.newRecEditor.reset();
+      this.newRecord.task_stat = undefined;
+    },
+    deleteRecord(recNo){
+      console.log('删除记录：', {recNo});
+      deleteTaskRecord(recNo).then(res => {
+        if (eval(res).deletedCount > 0) {
+          for (let i = 0; i < this.taskRecords.length; i++) {
+            if(this.taskRecords[i].record_no === recNo) {
+              this.taskRecords.splice(i, 1);
+            }
+          }
+          this.$notification['success']({
+            message: '删除任务记录成功'
+          })
+        } else {
+          this.$notification['error']({
+            message: '未找到对应记录'
+          })
+        }
+      }).catch(err => {
+        this.$notification['error']({
+          message: '删除任务记录失败:',
+          description: err
+        })
+      });
+    },
+    print() {
+      console.log(this.taskStat, this.newRecord)
     }
   }
 }
 </script>
 
 <style scoped>
+.newRecEditor{
+  margin-top: 12px;
+}
 </style>

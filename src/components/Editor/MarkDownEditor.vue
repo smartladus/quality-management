@@ -13,11 +13,12 @@
   <template v-else slot='extra'>
     <a-space>
       <slot name='extra-of-preview'></slot>
-      <a-button type="primary" @click="edit">编辑</a-button>
+      <a-button @click="edit">编辑</a-button>
     </a-space>
   </template>
   <mavon-editor
     class='editor'
+    :class='[curMode]'
     :placeholder='placeholder'
     :toolbars='toolbars'
     :boxShadow='false'
@@ -26,7 +27,7 @@
     :editable='curMode === "edit"'
     :subfield='curMode === "edit"'
     :toolbarsFlag='curMode === "edit"'
-    previewBackground='#ffffff'
+    previewBackground='#FFFFFF'
     v-model='curContent'
     @click='edit'
     @blur='save'
@@ -41,7 +42,6 @@ export default {
   data() {
     return {
       curMode: 'preview',
-      oriContent: '',
       curContent: '',
       toolbars: {
         bold: true, // 粗体
@@ -56,37 +56,62 @@ export default {
     }
   },
   props: {
+    // 标题
     title: String,
+    // 模式：edit | preview
     mode: {
       type: String,
       default: 'edit',
     },
+    // 初始内容
     content: {
-      type: String,
       default: '',
     },
+    // 占位内容
     placeholder: {
       type: String,
-      default: '开始编辑',
+      default: '开始编辑...',
+    },
+    // 取消或保存后是否自动进入预览模式
+    previewAfterAction: {
+      type: Boolean,
+      default: true
     }
   },
+  watch: {
+    content(val, oldVal) {
+      this.curContent = val;
+    },
+  },
   methods: {
+    // 进入编辑模式
     edit() {
       this.curMode = 'edit';
     },
+    // 保存内容，
     save() {
-      this.curMode = 'preview';
-      this.oriContent = this.curContent;
-      this.$emit('updated', this.curContent);
+      // 默认保存后自动进入预览模式
+      if (this.previewAfterAction) {
+        this.curMode = 'preview'
+      }
+      this.$emit('save', this.curContent);
     },
     cancel() {
-      this.curMode = 'preview';
-      this.curContent = this.oriContent;
+      // 默认取消后自动进入预览模式
+      if (this.previewAfterAction) {
+        this.curMode = 'preview';
+      }
+      this.curContent = this.content;
+      this.$emit('cancel');
     },
+    // 重置编辑器，编辑模式，内容为空
+    reset() {
+      this.curMode = 'edit';
+      this.curContent = '';
+    }
   },
   mounted() {
     this.curContent = this.content;
-    this.oriContent = this.content;
     this.curMode = this.mode;
   },
 }
@@ -96,5 +121,10 @@ export default {
 .editor{
   z-index: 0;
   border: none;
+  min-height: 0;
+  margin: -10px;
+}
+.editor.edit{
+  min-height: 300px;
 }
 </style>

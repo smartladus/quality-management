@@ -24,23 +24,18 @@
       <a-card class='card' :bordered="false" title="进度及待办">
         <task-steps />
         <a-divider></a-divider>
-        <div>试试markdown编辑器啊</div>
-        <mark-down-editor
-          title='hahah'
-          placeholder='啥也没记'
-          mode='preview'
-        />
-        <a-divider></a-divider>
         <mark-down-editor
           title='待办事项'
-          :content='form.todo === null ? "" : form.todo'
-          @updated='updateTodo'
+          mode='preview'
+          :content='form.todo'
+          @save='updateTodo'
         />
         <a-divider></a-divider>
         <mark-down-editor
           title='备注'
-          :content='form.comments === null ? "" : form.comments'
-          @updated='updateComments'
+          mode='preview'
+          :content='form.comments'
+          @save='updateComments'
         />
       </a-card>
 
@@ -174,8 +169,21 @@ export default {
       console.log(`taskNo changed from ${oldVal} to ${val}`);
       if (val !== 'new' && val !== undefined) {
         getCertTask(val).then(res => {
+          // 如果返回的任务信息中存在null，则设置为空字符串
+          for (let key in res) {
+            Object.getOwnPropertyNames(res).forEach(function(key){
+              if (res[key] === null) {
+                res[key] = '';
+              }
+            });
+          }
           this.form = res;
           this.curRegion = this.form.region;
+        }).catch(err => {
+          this.$notification['error']({
+            message: `获取任务 ${val} 信息失败:`,
+            description: err
+          })
         })
       }
     },

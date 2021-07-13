@@ -1,5 +1,5 @@
 <template>
-<a-select class='selector' placeholder='选择任务状态'>
+<a-select class='selector' placeholder='选择任务状态' v-model='stat' @change='onChange'>
   <a-select-option v-for='item in taskStatMap' :value='item.val' :key='item.val'>{{item.text}}</a-select-option>
 </a-select>
 </template>
@@ -19,7 +19,17 @@ export default {
   data() {
     return {
       taskStatMap,
-
+      stat: this.defaultStat,
+    }
+  },
+  props: ['value', 'defaultStat'],
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
+  methods: {
+    onChange(val) {
+      this.$emit('change', val);
     }
   }
 }
