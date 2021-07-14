@@ -5,9 +5,11 @@ const certApi = {
   TaskList: 'http://localhost:8899/api/cert/task/get/all',
   TaskNoList: 'http://localhost:8899/api/cert/task/no/get/',
   GetCertTask: 'http://localhost:8899/api/cert/task/get/',
+  UpdateCertTask: 'http://localhost:8899/api/cert/task/update',
   UploadTask: 'http://localhost:8899/api/cert/task/upload',
   TaskListTemplateDownload: 'http://localhost:8899/api/cert/task/download/template',
   DeleteTask: 'http://localhost:8899/api/cert/task/delete/',
+  InsertTask: 'http://localhost:8899/api/cert/task/insert/',
   CertCategoryOfRegion: 'http://localhost:8899/api/cert/category/get',
   GetTaskRecord: 'http://localhost:8899/api/cert/task/record/get/',
   InsertTaskRecord: 'http://localhost:8899/api/cert/task/record/insert',
@@ -59,6 +61,22 @@ export function deleteTask(taskNo) {
   return request({
     url: certApi.DeleteTask + taskNo,
     method: 'delete'
+  })
+}
+
+export function updateTask(task) {
+  return request({
+    url: certApi.UpdateCertTask,
+    method: 'post',
+    data: task
+  })
+}
+
+export function insertTask(task) {
+  return request({
+    url: certApi.InsertTask,
+    method: 'post',
+    data: task
   })
 }
 

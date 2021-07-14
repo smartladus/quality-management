@@ -91,15 +91,25 @@ export default {
       console.log('更新记录：', record);
       // todo 更新记录，先检查下传过来的record对不对
       updateTaskRecord(record).then(res => {
-
+        if (res === 'SUCCESS') {
+          this.$notification['success']({
+            message: '任务记录已保存',
+          })
+        } else {
+          this.$notification['error']({
+            message: '任务记录保存失败:',
+            description: err
+          })
+        }
       }).catch(err => {
         // todo 如果更新记录失败了，因为v-model存在，已经改掉了界面显示，好像有点问题
+        this.$notification['error']({
+          message: '任务记录保存失败:',
+          description: err
+        })
       });
     },
-    test() {
-      console.log('嘻嘻');
-    },
-    insertRecord(content) {
+    insertRecord() {
       let record = {
         record_no: null,
         task_no: this.taskNo,
@@ -118,7 +128,7 @@ export default {
         });
         return;
       }
-      if (content === undefined || content === null || content === '') {
+      if (record.content === undefined || record.content === null || record.content === '') {
         this.$notification['error']( {
           message: '未输入任何记录内容！'
         });

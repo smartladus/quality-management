@@ -2,7 +2,7 @@
 <page-header-wrapper
   :title='title'
 >
-  <a-card v-if='taskNo === undefined' :bordered="false">
+  <a-card v-if='form.task_no === undefined' :bordered="false">
     <a-empty>
       <span slot="description">未选择编辑内容</span>
       <a-button type="primary" @click='setModeSelectModal(true)'>
@@ -17,9 +17,11 @@
   </a-card>
   <template v-else>
     <a-form-model
+      ref='taskForm'
       :model='form'
       :labelCol="{span: 8}"
       :wrapperCol="{span: 6}"
+      :rules="rules"
     >
       <a-card class='card' :bordered="false" title="进度及待办">
         <task-steps />
@@ -36,9 +38,12 @@
           v-model='form.comments'
         />
         <template v-slot:extra>
-          <task-stat-selector
-            v-model='form.task_stat'
-          />
+          <a-form-model-item label="任务状态" prop="task_stat" required style='margin: 0'>
+            <task-stat-selector
+              v-model='form.task_stat'
+              :disabled='form.task_no === "new"'
+            />
+          </a-form-model-item>
         </template>
       </a-card>
 
@@ -49,6 +54,7 @@
         <a-form-model-item label="认证费用" prop="cost" required>
           <a-input-number
             v-model="form.cost"
+            :min="0"
             :precision="2"
             :formatter="value => `￥ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
             :parser="value => value.replace(/￥\s?|(,*)/g, '')"
@@ -93,16 +99,26 @@
       </a-card>
     </a-form-model>
 
-    <a-card v-if='taskNo !== undefined && taskNo !== "new"' class='card' title='历史记录' :bordered="false">
-      <task-record-time-line :task-no='taskNo'/>
+    <a-card v-if='form.task_no !== undefined && form.task_no !== "new"' class='card' title='历史记录' :bordered="false">
+      <task-record-time-line :task-no='form.task_no'/>
     </a-card>
   </template>
-  <footer-tool-bar v-if='taskNo !== undefined' :collapsed="sideCollapsed">
-    <a-space>
-      <a-button @click='printForm'>打印</a-button>
-      <a-button>取消</a-button>
-      <a-button type="primary" @click='saveTask'>保存</a-button>
-    </a-space>
+  <footer-tool-bar v-if='form.task_no !== undefined' :collapsed="sideCollapsed">
+    <a-popover v-model="errListVisible" title="表单校验信息" trigger="click">
+      <template slot="content">
+        <ul class='errList'>
+          <li v-for='item in errors' class='errListItem' @click='scrollTo(item.key)'>
+            <a-icon type="close-circle" class='errIcon'/>{{item.message}}
+          </li>
+        </ul>
+      </template>
+      <span v-if='errors.length > 0' class='errIndicator'>
+        <a-icon type="exclamation-circle" class='errIcon'/>{{errors.length}}
+      </span>
+    </a-popover>
+    <a-button @click='printForm' class='action'>打印</a-button>
+    <a-button class='action'>取消</a-button>
+    <a-button type="primary" @click='saveTask' class='action'>保存</a-button>
   </footer-tool-bar>
 </page-header-wrapper>
 </template>
@@ -112,51 +128,128 @@ import ModeSelectModal from '@/views/cert/task/taskEdit/ModeSelectModal'
 import TaskRecordTimeLine from '@/views/cert/task/taskEdit/TaskRecordTimeLine'
 import TaskSteps from '@/views/cert/task/taskEdit/TaskSteps'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
-import {getRegionList, getCertTask, getCategoriesByRegion} from '@/api/cert'
+import {getRegionList, getCertTask, getCategoriesByRegion, updateTask, insertTask} from '@/api/cert'
 import { baseMixin } from '@/store/app-mixin'
 import FooterToolBar from '@/components/FooterToolbar'
 import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
+
+let form = {
+  task_no: undefined,
+  oa_no: '',
+  cost: 0,
+  cost_bearer: '',
+  region: undefined,
+  cert_name: undefined,
+  cert_method: undefined,
+  cert_owner: undefined,
+  sup_name: undefined,
+  sup_model: undefined,
+  jv_model: undefined,
+  todo: '',
+  comments: ''
+};
+
+let validateCostBearer = (rule, value, callback) => {
+  let res = true;
+  let bearer = value.trim();
+  console.log(`validateCostBearer: ${this.form.cost}, cost: ${this.form.cost}`)
+  if (this.form.cost > 0 && bearer === '') {
+    res = false;
+  }
+  if (res) {
+    callback()
+  } else {
+    callback(new Error('请填写费用承担方'));
+  }
+}
+
+let rules = {
+  cost: [
+    {
+      required: true,
+      trigger: ['change', 'blur'],
+      message: '认证费用不能为空'
+    }
+  ],
+  cost_bearer: [
+    {
+      required: form.cost > 0,
+      trigger: ['change', 'blur'],
+      validator: validateCostBearer
+    }
+  ],
+  region: [
+    {
+      required: true,
+      message: '请选择认证区域'
+    }
+  ],
+  cert_name: [
+    {
+      required: true,
+      message: '请选择认证名称'
+    }
+  ],
+  cert_method: [
+    {
+      required: true,
+      message: '请选择获证方式'
+    }
+  ],
+  cert_owner: [
+    {
+      required: true,
+      message: '请填写持证方'
+    }
+  ],
+  sup_name: [
+    {
+      required: true,
+      message: '请选择供应商'
+    }
+  ],
+  sup_model: [
+    {
+      required: true,
+      message: '请填写供应商型号范围'
+    }
+  ],
+  jv_model: [
+    {
+      required: true,
+      message: '请填写数字科技型号范围'
+    }
+  ]
+}
 
 export default {
   name: 'CertTaskEdit',
   mixins: [baseMixin],
   data() {
     return {
-      taskNo: undefined,
       modeSelectModalVisible: false,
+      errListVisible: false,
       regions:[],
       certCategories: [],
       curRegion: undefined,
-      form: {
-        oa_no: '',
-        cost: 0,
-        cost_bearer: '',
-        region: undefined,
-        cert_name: undefined,
-        cert_method: undefined,
-        cert_owner: undefined,
-        sup_name: undefined,
-        sup_model: undefined,
-        jv_model: undefined,
-        todo: undefined,
-        comments: undefined
-      }
+      form,
+      rules,
+      errors: []
     }
   },
   computed: {
     title() {
-      switch (this.taskNo) {
+      switch (this.form.task_no) {
         case 'new':
           return '新建任务'
         case undefined :
           return '请选择编辑内容'
         default:
-          return this.taskNo
+          return this.form.task_no
       }
     }
   },
   mounted() {
-    this.taskNo = this.$route.params.taskNo;
     getRegionList().then(res => {
       this.regions = res;
       // console.log('认证区域列表已获取：', res)
@@ -168,28 +261,6 @@ export default {
     })
   },
   watch: {
-    taskNo(val, oldVal) {
-      console.log(`taskNo changed from ${oldVal} to ${val}`);
-      if (val !== 'new' && val !== undefined) {
-        getCertTask(val).then(res => {
-          // 如果返回的任务信息中存在null，则设置为空字符串
-          for (let key in res) {
-            Object.getOwnPropertyNames(res).forEach(function(key){
-              if (res[key] === null) {
-                res[key] = '';
-              }
-            });
-          }
-          this.form = res;
-          this.curRegion = this.form.region;
-        }).catch(err => {
-          this.$notification['error']({
-            message: `获取任务 ${val} 信息失败:`,
-            description: err
-          })
-        })
-      }
-    },
     curRegion(val, oldVal) {
       console.log(`curRegion changed from ${oldVal} to ${val}`);
       getCategoriesByRegion(val).then(categories => {
@@ -197,19 +268,53 @@ export default {
       })
     }
   },
+  beforeRouteEnter (to, from, next) {
+    console.log('CertTaskEdit before route enter called')
+    next(vm => {
+      vm.loadTaskInfo(vm, to.params.taskNo);
+    })
+  },
+  beforeRouteUpdate(to, from, next) {
+    console.log('CertTaskEdit before route update called')
+    this.loadTaskInfo(this, to.params.taskNo);
+    next()
+  },
   methods: {
     setModeSelectModal(visible) {
       this.modeSelectModalVisible = visible;
     },
     initEdit(form) {
-      // console.log(form);
-      if (form.mode === 'new') {
-        this.taskNo = 'new';
-        this.$router.push('/cert/task/edit/new');
-      } else {
-        this.taskNo = form.taskNo;
-        this.$router.push('/cert/task/edit/' + form.taskNo);
+      let url = '/cert/task/edit/' + (form.mode === 'new' ? 'new' : form.taskNo);
+      console.log({form, url});
+      this.$router.push(url);
+    },
+    loadTaskInfo(vm, taskNo) {
+      console.log(`taskNo changed to ${taskNo}`);
+      if (taskNo === undefined) {
+        return;
       }
+      if (taskNo === 'new') {
+        vm.form.task_no = 'new';
+        vm.form.task_stat = 'NEW';
+        return;
+      }
+      getCertTask(taskNo).then(res => {
+        // 如果返回的任务信息中存在null，则设置为空字符串
+        for (let key in res) {
+          Object.getOwnPropertyNames(res).forEach(function(key){
+            if (res[key] === null) {
+              res[key] = '';
+            }
+          });
+        }
+        vm.form = res;
+        vm.curRegion = this.form.region;
+      }).catch(err => {
+        this.$notification['error']({
+          message: `获取任务 ${taskNo} 信息失败:`,
+          description: err
+        })
+      })
     },
     onRegionChange(val) {
       console.log(`region changed to ${val}`)
@@ -233,7 +338,45 @@ export default {
       });
     },
     saveTask() {
-      console.log('saving task ============================================')
+      console.log('saving task ============================================\n', this.form)
+      this.errors = [];
+      this.$refs.taskForm.validate((valid, fieldErrs) => {
+        if (valid) {
+          console.log('success submit!!');
+          if (this.form.task_no === 'new') {
+            insertTask(this.form).then(res => {
+              if (res.task_no) {
+                this.$router.push("/cert/task/edit/" + res.task_no);
+                this.$notification['success']({
+                  message: '任务添加成功',
+                })
+              }
+
+            })
+          } else {
+            updateTask(this.form).then(res => {
+              if (res === 'SUCCESS') {
+                this.$notification['success']({
+                  message: '任务信息已更新',
+                })
+              }
+            })
+          }
+        } else {
+          console.log('error submit!!', fieldErrs);
+          this.errors = Object.keys(fieldErrs)
+            .filter(key => fieldErrs[key])
+            .map(key => ({
+              key: key,
+              message: fieldErrs[key][0].message
+            }))
+          return false;
+        }
+      });
+    },
+    scrollTo(itemKey) {
+      console.log(itemKey + 'clicked');
+      // todo 滚动到错误的地方
     },
     printForm() {
       console.log(this.form);
@@ -253,5 +396,28 @@ export default {
 <style scoped>
 .card{
   margin-bottom: 24px;
+}
+.action{
+  margin-left: 8px;
+}
+.errIndicator{
+  color: red;
+}
+.errIcon{
+  color: red;
+  margin-right: 4px;
+}
+.errList{
+  list-style: none;
+  margin: -12px -16px -12px;
+  padding: 0;
+}
+.errListItem{
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: #d6d6d6 1px solid;
+}
+.errListItem:hover{
+  background: #e6f7ff;
 }
 </style>
