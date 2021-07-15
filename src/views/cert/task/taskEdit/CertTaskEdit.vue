@@ -24,8 +24,8 @@
       :rules="rules"
     >
       <a-card class='card' :bordered="false" title="进度及待办">
-        <task-steps />
-        <a-divider></a-divider>
+<!--        <task-steps :stat='form.task_stat' />-->
+<!--        <a-divider></a-divider>-->
         <mark-down-editor
           title='待办事项'
           mode='preview'
@@ -100,7 +100,7 @@
     </a-form-model>
 
     <a-card v-if='form.task_no !== undefined && form.task_no !== "new"' class='card' title='历史记录' :bordered="false">
-      <task-record-time-line :task-no='form.task_no'/>
+      <task-record-time-line :task-no='form.task_no' :cur-stat='form.task_stat'/>
     </a-card>
   </template>
   <footer-tool-bar v-if='form.task_no !== undefined' :collapsed="sideCollapsed">
@@ -133,107 +133,55 @@ import { baseMixin } from '@/store/app-mixin'
 import FooterToolBar from '@/components/FooterToolbar'
 import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
 
-let form = {
-  task_no: undefined,
-  oa_no: '',
-  cost: 0,
-  cost_bearer: '',
-  region: undefined,
-  cert_name: undefined,
-  cert_method: undefined,
-  cert_owner: undefined,
-  sup_name: undefined,
-  sup_model: undefined,
-  jv_model: undefined,
-  todo: '',
-  comments: ''
-};
-
-let validateCostBearer = (rule, value, callback) => {
-  let res = true;
-  let bearer = value.trim();
-  console.log(`validateCostBearer: ${this.form.cost}, cost: ${this.form.cost}`)
-  if (this.form.cost > 0 && bearer === '') {
-    res = false;
-  }
-  if (res) {
-    callback()
-  } else {
-    callback(new Error('请填写费用承担方'));
-  }
-}
-
-let rules = {
-  cost: [
-    {
-      required: true,
-      trigger: ['change', 'blur'],
-      message: '认证费用不能为空'
-    }
-  ],
-  cost_bearer: [
-    {
-      required: form.cost > 0,
-      trigger: ['change', 'blur'],
-      validator: validateCostBearer
-    }
-  ],
-  region: [
-    {
-      required: true,
-      message: '请选择认证区域'
-    }
-  ],
-  cert_name: [
-    {
-      required: true,
-      message: '请选择认证名称'
-    }
-  ],
-  cert_method: [
-    {
-      required: true,
-      message: '请选择获证方式'
-    }
-  ],
-  cert_owner: [
-    {
-      required: true,
-      message: '请填写持证方'
-    }
-  ],
-  sup_name: [
-    {
-      required: true,
-      message: '请选择供应商'
-    }
-  ],
-  sup_model: [
-    {
-      required: true,
-      message: '请填写供应商型号范围'
-    }
-  ],
-  jv_model: [
-    {
-      required: true,
-      message: '请填写数字科技型号范围'
-    }
-  ]
-}
-
 export default {
   name: 'CertTaskEdit',
   mixins: [baseMixin],
   data() {
+    let validateCostBearer = (rule, value, callback) => {
+      let res = true;
+      let bearer = value.trim();
+      console.log(`validateCostBearer: ${this.form.cost}, cost: ${this.form.cost}`)
+      if (this.form.cost > 0 && bearer === '') {
+        res = false;
+      }
+      if (res) {
+        callback()
+      } else {
+        callback(new Error('请填写费用承担方'));
+      }
+    }
     return {
       modeSelectModalVisible: false,
       errListVisible: false,
       regions:[],
       certCategories: [],
       curRegion: undefined,
-      form,
-      rules,
+      form: {
+        task_no: undefined,
+        oa_no: '',
+        cost: 0,
+        cost_bearer: '',
+        region: undefined,
+        cert_name: undefined,
+        cert_method: undefined,
+        cert_owner: undefined,
+        sup_name: undefined,
+        sup_model: undefined,
+        jv_model: undefined,
+        todo: '',
+        comments: ''
+      },
+      rules:{
+        cost: [{ required: true, trigger: ['change', 'blur'], message: '认证费用不能为空' }],
+        cost_bearer: [{ trigger: ['change', 'blur'], validator: validateCostBearer }],
+        region: [{ required: true, message: '请选择认证区域' }],
+        cert_name: [{ required: true, message: '请选择认证名称' }],
+        cert_method: [{ required: true, message: '请选择获证方式' }],
+        cert_owner: [{ required: true, message: '请填写持证方' }],
+        sup_name: [{ required: true, message: '请选择供应商' }],
+        sup_model: [{ required: true, message: '请填写供应商型号范围' }],
+        jv_model: [{ required: true, message: '请填写数字科技型号范围' }]
+      },
       errors: []
     }
   },

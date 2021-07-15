@@ -1,8 +1,8 @@
 <template>
-<a-steps :current="1" progressDot>
-  <a-step v-for='(step, index) in steps' :key='index'>
+<a-steps :current="taskStatMap[stat].index" progressDot>
+  <a-step v-for='step in taskStatMap' :key='step.index'>
     <template v-slot:title>
-      <span>{{step.title}}</span>
+      <span>{{step.name}}</span>
     </template>
     <template v-slot:description>
       {{step.desc}}
@@ -13,36 +13,27 @@
 </template>
 
 <script>
+import { taskStatMap } from '@/views/cert/task/taskStat'
 export default {
   name: 'TaskSteps',
   data() {
     return {
-      steps: [
-        {
-          title: '新建任务'
-        },
-        {
-          title: '资料准备',
-          desc: '已完成',
-          finished: true
-        },
-        {
-          title: '型式试验',
-          desc: '已完成',
-          finished: true
-        },
-        {
-          title: '获证',
-          desc: '已完成',
-          finished: true
-        },
-        {
-          title: '完成'
-        }
-      ]
+      taskStatMap
     }
   },
-  // props: ['steps']
+  computed: {
+    steps() {
+      let res = [];
+      for (let stat in taskStatMap) {
+        res.push({
+          index: stat.index,
+          title: stat.name,
+        })
+      }
+      return res;
+    }
+  },
+  props: ['stat']
 }
 </script>
 

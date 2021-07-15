@@ -29,13 +29,14 @@
       <mark-down-editor
         mode='preview'
         action-style='icon'
-        :title='record.record_no'
         v-model='record.content'
         @save='updateRecord(record)'
       >
-        <template v-slot:extra-of-preview>
+        <template v-slot:title>
           <task-stat-tag :task-stat='record.task_stat'/>
           <span>{{record.record_time | dayjs}}</span>
+        </template>
+        <template v-slot:extra-of-preview>
           <a-popconfirm title="确认删除记录？" ok-text="确认" cancel-text="取消" @confirm="deleteRecord(record.record_no)">
             <a-button type="danger">删除</a-button>
           </a-popconfirm>
@@ -58,7 +59,7 @@ export default {
   data() {
     return{
       newRecord: {
-        task_stat: undefined,
+        task_stat: this.curStat,
         record_time: moment(),
         content: '',
       },
@@ -66,7 +67,12 @@ export default {
       newRecEditorVisible: false
     }
   },
-  props: ['taskNo'],
+  watch: {
+    curStat(val, oldVal) {
+      this.newRecord.task_stat = val;
+    }
+  },
+  props: ['taskNo', 'curStat'],
   mounted() {
     getTaskRecord(this.taskNo).then(records => {
       this.taskRecords = records;
@@ -158,7 +164,7 @@ export default {
     resetNewRecEditor() {
       this.newRecEditorVisible = false;
       this.newRecord.content = '';
-      this.newRecord.task_stat = undefined;
+      this.newRecord.task_stat = this.curStat;
     },
     deleteRecord(recNo){
       console.log('删除记录：', {recNo});

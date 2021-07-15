@@ -1,26 +1,24 @@
 <template>
 <div>
-  <mark-down-editor
-    :preview-after-action='false'
-    v-model='content'
-    ref='editor'
-  />
-  <div>Current : {{content}}</div>
-  <input type='text' v-model='content'>
+  <ul>
+    <li v-for='(item, key) in taskStatMap'>
+      {{key}}:{{item.name}}
+    </li>
+  </ul>
 </div>
 </template>
 
 <script>
-import MarkDownEditor from '@/components/Editor/MarkDownEditor'
+import { taskStatMap } from '@/views/cert/task/taskStat'
 export default {
   name: 'Test',
   data(){
     return {
-      content: 'text'
+      taskStatMap
     }
   },
   components: {
-    MarkDownEditor
+
   }
 }
 </script>

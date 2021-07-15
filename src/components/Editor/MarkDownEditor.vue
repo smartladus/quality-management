@@ -1,8 +1,6 @@
 <template>
-<a-card
-  size='small'
-  :title='title'
->
+<a-card size='small' :title='title'>
+  <template slot='title'><slot name='title'/></template>
   <template v-if='curMode === "edit"' slot='extra'>
     <a-space>
       <slot name='extra-of-edit'></slot>
@@ -56,7 +54,6 @@ export default {
     }
   },
   props: {
-    // 标题
     title: String,
     // 模式：edit | preview
     mode: {
