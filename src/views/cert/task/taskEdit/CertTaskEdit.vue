@@ -323,8 +323,12 @@ export default {
       });
     },
     scrollTo(itemKey) {
-      console.log(itemKey + 'clicked');
       // todo 滚动到错误的地方
+      const labelNode = document.querySelector(`label[title="供应商型号范围"]`)
+      console.log(itemKey + 'clicked', labelNode);
+      if (labelNode) {
+        labelNode.scrollIntoView(true)
+      }
     },
     printForm() {
       console.log(this.form);

@@ -39,4 +39,5 @@ export default {
   'menu.cert': '认证管理',
   'menu.cert.task.list': '任务列表',
   'menu.cert.task.edit': '任务编辑',
+  'menu.cert.category': '认证类型管理',
 }

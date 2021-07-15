@@ -87,10 +87,10 @@
       </span>
       <span slot="action" slot-scope="text, task">
         <a-icon class="task-action" type="form" @click='goToEdit(task.task_no)'/>
-      <a-divider type="vertical" />
-      <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doTaskDelete(task)">
-        <a-icon class="task-action task-action-delete" type="delete"/>
-      </a-popconfirm>
+        <a-divider type="vertical" />
+        <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doTaskDelete(task)">
+          <a-icon class="task-action task-action-delete" type="delete"/>
+        </a-popconfirm>
       </span>
     </a-table>
   </page-header-wrapper>

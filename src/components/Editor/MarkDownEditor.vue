@@ -20,7 +20,6 @@
     :placeholder='placeholder'
     :toolbars='toolbars'
     :boxShadow='false'
-    :bordered='false'
     :defaultOpen='curMode'
     :editable='curMode === "edit"'
     :subfield='curMode === "edit"'
