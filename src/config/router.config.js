@@ -32,7 +32,7 @@ export const asyncRouterMap = [
             path: '/quality/issue',
             name: 'Issue',
             redirect: '/quality/issue/list',
-            component: RouteView,
+            component: () => import('@/views/quality/issue/IssueLayout'),
             meta: { title: 'menu.quality.issue', keepAlive: true },
             children: [
               {
