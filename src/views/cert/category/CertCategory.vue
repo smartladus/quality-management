@@ -13,7 +13,7 @@
       <span>{{ compulsory ? 'Y' : 'N' }}</span>
     </span>
     <span slot="type" slot-scope="type">
-      <a-tag v-for='item in type' color='blue'>{{item}}</a-tag>
+      <a-tag v-for='(item, index) in type' color='blue' :key='index'>{{item}}</a-tag>
     </span>
 
     <span slot="comments" slot-scope="comments">

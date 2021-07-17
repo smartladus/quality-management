@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><style>.cls-1{fill:none;}.cls-2{fill:#005bbb;}</style></defs><g id="图层_2" data-name="图层 2"><g id="图层_1-2" data-name="图层 1"><rect class="cls-1" width="512" height="512"/><rect class="cls-2" x="91.63" y="448.5" width="330" height="52.5"/><path class="cls-2" d="M256,11C152.45,11,68.5,95,68.5,198.5S152.45,386,256,386s187.5-83.95,187.5-187.5S359.55,11,256,11Zm-.62,321.88a135,135,0,1,1,135-135A135,135,0,0,1,255.38,332.88Z"/></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <style>.cls-2{fill:#005bbb;}</style>
+  </defs>
+  <rect class="cls-2" x="22.91" y="112.13" width="82.5" height="13.13"/>
+  <path class="cls-2" d="M64,2.75a46.88,46.88,0,1,0,46.88,46.87A46.88,46.88,0,0,0,64,2.75Zm-.16,80.47A33.75,33.75,0,1,1,97.59,49.47,33.75,33.75,0,0,1,63.84,83.22Z"/>
+</svg>

@@ -37,7 +37,15 @@ export default {
   'menu.account.trigger': '触发报错',
   'menu.account.logout': '退出登录',
   'menu.cert': '认证管理',
+  'menu.cert.prodpool': '产品池',
   'menu.cert.task.list': '任务列表',
   'menu.cert.task.edit': '任务编辑',
   'menu.cert.category': '认证类型管理',
+  'menu.cert.certificate': '证书管理',
+  'menu.quality': '质量管理',
+  'menu.quality.delivery': '出货记录',
+  'menu.quality.issue': '质量问题',
+  'menu.quality.issue.list': '质量问题清单',
+  'menu.quality.issue.edit': '质量问题编辑',
+
 }

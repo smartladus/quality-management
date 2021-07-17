@@ -11,7 +11,7 @@
   >
     <template v-slot:menuHeaderRender>
       <div>
-        <boe-svg />
+        <BoeSvg />
         <h1>{{ title }}</h1>
       </div>
     </template>

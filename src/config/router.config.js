@@ -16,12 +16,54 @@ export const asyncRouterMap = [
     redirect: '/cert',
     children: [
       {
+        path: '/quality',
+        name: 'quality',
+        redirect: '/quality/delivery',
+        component: RouteView,
+        meta: { title: 'menu.quality', keepAlive: true, icon: 'safety-certificate' },
+        children: [
+          {
+            path: '/quality/delivery',
+            name: 'delivery',
+            component: () => import('@/views/quality/delivery/ProdDelivery'),
+            meta: { title: 'menu.quality.delivery', keepAlive: true }
+          },
+          {
+            path: '/quality/issue',
+            name: 'Issue',
+            redirect: '/quality/issue/list',
+            component: RouteView,
+            meta: { title: 'menu.quality.issue', keepAlive: true },
+            children: [
+              {
+                path: '/quality/issue/list',
+                name: 'IssueList',
+                component: () => import('@/views/quality/issue/IssueList'),
+                meta: { title: 'menu.quality.issue.list', keepAlive: true },
+              },
+              {
+                path: '/quality/issue/edit',
+                name: 'IssueEdit',
+                component: () => import('@/views/quality/issue/IssueEdit'),
+                meta: { title: 'menu.quality.issue.edit', keepAlive: true }
+              },
+            ]
+          },
+        ]
+      },
+      {
         path: '/cert',
         name: 'cert',
         redirect: '/cert/task/list',
         component: RouteView,
         meta: { title: 'menu.cert', keepAlive: true, icon: 'audit' },
         children: [
+          {
+            path: '/cert/prodpool',
+            name: 'prodpool',
+            component: () => import('@/views/cert/prodpool/ProdPool'),
+            meta: { title: 'menu.cert.prodpool', keepAlive: true }
+          },
           {
             path: '/cert/task/list',
             name: 'CertTaskList',
@@ -39,6 +81,12 @@ export const asyncRouterMap = [
             name: 'CertCategory',
             component: () => import('@/views/cert/category/CertCategory'),
             meta: { title: 'menu.cert.category', keepAlive: true }
+          },
+          {
+            path: '/cert/certificate',
+            name: 'CertCertificate',
+            component: () => import('@/views/cert/certificate/CertificateMgmt'),
+            meta: { title: 'menu.cert.certificate', keepAlive: true }
           }
         ]
       },
