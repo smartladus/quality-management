@@ -1,24 +1,40 @@
 <template>
 <div>
-  <ul>
-    <li v-for='(item, key) in taskStatMap'>
-      {{key}}:{{item.name}}
-    </li>
-  </ul>
+  <upload-modal
+    title='hahah'
+    :visible='visible'
+    :template-download-url='templateDownloadUrl'
+    :do-upload='uploadTaskList'
+    @updated='onSuccess'
+    @uploadError='onError'
+
+  />
 </div>
 </template>
 
 <script>
-import { taskStatMap } from '@/views/cert/task/taskStat'
+import UploadModal from '@/views/common/UploadModal'
+import { uploadTaskList, templateDownloadUrl } from '@/api/cert'
+
 export default {
   name: 'Test',
   data(){
     return {
-      taskStatMap
+      visible: false,
+      uploadTaskList,
+      templateDownloadUrl: templateDownloadUrl(),
     }
   },
   components: {
-
+    UploadModal
+  },
+  methods: {
+    onSuccess(fileName, res) {
+      this.$message.info(fileName + res);
+    },
+    onError(fileName, err) {
+      this.$message.error(fileName + err);
+    }
   }
 }
 </script>

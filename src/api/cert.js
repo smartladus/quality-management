@@ -81,9 +81,7 @@ export function insertTask(task) {
   })
 }
 
-export function templateDownloadUrl() {
-  return certApi.TaskListTemplateDownload;
-}
+export const templateDownloadUrl = certApi.TaskListTemplateDownload;
 
 export function getCategoriesByRegion(region) {
   return request({

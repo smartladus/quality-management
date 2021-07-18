@@ -1,17 +1,20 @@
 <template>
-<div>
+<div class='uploadModal'>
+  <a-button icon="upload" @click="setModalVisible(true)">
+    批量上传
+  </a-button>
   <a-modal
-      title="批量上传任务"
-      :visible="visible"
-      @cancel="handleCancel"
+    :title="title"
+    :visible="visible"
+    @cancel="handleCancel"
   >
     <a-upload-dragger
-        name="file"
-        :multiple="false"
-        :headers="headers"
-        :before-upload="beforeTaskUpload"
-        :file-list="fileList"
-        :remove="handleRemove"
+      name="file"
+      :multiple="false"
+      :headers="headers"
+      :before-upload="beforeTaskUpload"
+      :file-list="fileList"
+      :remove="handleRemove"
     >
       <p class="ant-upload-drag-icon">
         <a-icon type="inbox" />
@@ -34,13 +37,13 @@
         </a-radio-group>
       </a-col>
       <a-col :span="5">
-        <a-button type="link" icon="download"><a :href="templateDownloadUrl">下载模板</a></a-button>
+        <a-button type="link" icon="download"><a :href="templateDownloadUrl" @click='onTemplateDownload'>下载模板</a></a-button>
       </a-col>
     </a-row>
     <a-row type="flex" :gutter="[0,24]">
       <a-col :span="24">
-        <a-alert v-if="mode === 'add'" message="已选择增量上传，仅增加任务编号不同的行。" type="info" show-icon />
-        <a-alert v-if="mode === 'replace'" message="已选择覆盖替换，请谨慎操作！" type="warning" show-icon />
+        <a-alert v-if="mode === 'add'" :message="tipOfAdd" type="info" show-icon />
+        <a-alert v-if="mode === 'replace'" :message="tipOfReplace" type="warning" show-icon />
       </a-col>
     </a-row>
     <template slot="footer">
@@ -48,11 +51,11 @@
         取消
       </a-button>
       <a-button
-          key="submit"
-          type="primary"
-          :loading="uploading"
-          @click="handleOk"
-          :disabled="fileList.length === 0"
+        key="submit"
+        type="primary"
+        :loading="uploading"
+        @click="handleOk"
+        :disabled="fileList.length === 0"
       >
         确认上传
       </a-button>
@@ -62,31 +65,57 @@
 </template>
 
 <script>
-import { uploadTaskList, templateDownloadUrl } from '@/api/cert'
-
 export default {
-  name: "TaskUploadModal",
+  name: "UploadModal",
   data() {
     return {
+      visible: false,
       headers:{},
       fileList:[],
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
       mode: "add",
       uploading: false,
-      templateDownloadUrl
     }
   },
   props: {
-    visible: {
-      type: Boolean,
+    title: {
+      type: String,
       default() {
-        return false;
-      },
-      required: true
-    }
+        return '批量上传';
+      }
+    },
+    tipOfAdd: {
+      type: String,
+      default() {
+        return '已选择增量上传，仅增加不同的行。';
+      }
+    },
+    tipOfReplace: {
+      type: String,
+      default() {
+        return '已选择覆盖替换，请谨慎操作！';
+      }
+    },
+    templateDownloadUrl: {
+      type: String,
+      default() {
+        return 'javascript:void(0);';
+      }
+    },
+    doUpload: {
+      type: Function,
+      default() {
+        return new Promise(resolve => {
+          this.$message.info('未设置上传功能');
+        })
+      }
+    },
   },
   methods: {
+    setModalVisible(visible) {
+      this.visible = visible
+    },
     resetModal() {
       this.uploading = false;
       this.fileList = [];
@@ -103,39 +132,12 @@ export default {
       let data = new FormData();
       data.append('file', this.fileList[0]);
       let fileName = this.fileList[0].name;
-      uploadTaskList(this.mode, data).then(res => {
-        if (this.mode === 'replace') {
-          if (res === -1) {
-            this.$notification['err']({
-              message: fileName + "：任务清单替换失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：任务清单替换成功！",
-              description: "上传了 " + res + " 条数据！"
-            })
-          }
-        } else {
-          if (res === -1) {
-            this.$notification['err']({
-              message: fileName + "：任务清单更新失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：任务清单上传成功！",
-              description: "新增了 " + res + " 条数据！"
-            })
-          }
-        }
-        this.$emit("task_list_updated");
+      this.doUpload(this.mode, data).then(res => {
+        this.$emit("updated", this.mode, fileName, res);
         this.resetModal();
         this.closeModal();
       }).catch(err => {
-        this.$notification['err']({
-          message: fileName + "文件上传失败！",
-          description: err
-        });
-        console.log(err)
+        this.$emit("uploadError", this.mode, fileName, err);
         this.resetModal();
       });
     },
@@ -148,12 +150,19 @@ export default {
       return false;
     },
     closeModal() {
-      this.$emit('close');
+      this.visible = false;
+    },
+    onTemplateDownload() {
+      if (this.templateDownloadUrl === 'javascript:void(0);') {
+        this.$message.info('未设置模板下载链接');
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-
+.uploadModal{
+  display: inline-block;
+}
 </style>

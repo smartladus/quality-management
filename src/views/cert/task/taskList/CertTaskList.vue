@@ -5,7 +5,6 @@
       <a-button icon="plus" type="primary" @click="$router.push('/cert/task/edit/new')">
         新建
       </a-button>
-
       <a-button
         icon='sync'
         :disabled="listLoading"
@@ -14,13 +13,13 @@
       >
         刷新
       </a-button>
-      <a-button icon="upload" @click="setTaskUploadVisible(true)">
-        批量上传
-      </a-button>
-      <task-upload-modal
-        @task_list_updated="getAllTasks"
-        @close="setTaskUploadVisible(false)"
-        :visible="taskUploadVisible"
+      <upload-modal
+        title='批量上传任务'
+        :template-download-url='templateDownloadUrl'
+        :do-upload='uploadTaskList'
+        tip-of-add='已选择增量上传，仅增加任务编号不同的行。'
+        @updated='onSuccess'
+        @uploadError='onError'
       />
     </template>
 
@@ -98,7 +97,8 @@
 
 <script>
 import { getCertTaskList, deleteTask } from '@/api/cert'
-import TaskUploadModal from '@/views/cert/task/taskList/TaskUploadModal'
+import { uploadTaskList, templateDownloadUrl } from '@/api/cert'
+import UploadModal from '@/views/common/UploadModal'
 import TaskStatTag from '@/views/cert/task/TaskStatTag'
 
 const taskStatMap = {
@@ -276,9 +276,10 @@ export default {
     return {
       taskStatMap,
       certMethodMap,
+      templateDownloadUrl,
+      uploadTaskList,
       tasks: [],
       listLoading: false,
-      taskUploadVisible: false,
       columns,
       pagination: {
         // total: this.tasks.length,
@@ -321,8 +322,37 @@ export default {
         this.listLoading = false;
       });
     },
-    setTaskUploadVisible(visible) {
-      this.taskUploadVisible = visible;
+    onSuccess(mode, fileName, affectedRows) {
+      if (mode === 'replace') {
+        if (affectedRows === -1) {
+          this.$notification['err']({
+            message: fileName + "：任务清单替换失败！"
+          })
+        } else {
+          this.$notification['success']({
+            message: fileName + "：任务清单替换成功！",
+            description: "上传了 " + affectedRows + " 条数据！"
+          })
+        }
+      } else {
+        if (affectedRows === -1) {
+          this.$notification['err']({
+            message: fileName + "：任务清单更新失败！"
+          })
+        } else {
+          this.$notification['success']({
+            message: fileName + "：任务清单上传成功！",
+            description: "新增了 " + affectedRows + " 条数据！"
+          })
+        }
+      }
+      this.getAllTasks();
+    },
+    onError(mode, fileName, err) {
+      this.$notification['err']({
+        message: fileName + "文件上传失败！",
+        description: err
+      });
     },
     doTaskDelete(task){
       deleteTask(task.task_no).then(res => {
@@ -351,8 +381,8 @@ export default {
     }
   },
   components: {
-    TaskUploadModal,
-    TaskStatTag
+    TaskStatTag,
+    UploadModal
   }
 }
 </script>

@@ -1,5 +1,28 @@
 <template>
 <page-header-wrapper>
+  <template v-slot:extra>
+    <a-button icon="plus" type="primary" @click="$router.push('/cert/task/edit/new')">
+      新建
+    </a-button>
+
+    <a-button
+      icon='sync'
+      :disabled="listLoading"
+      @click="getAllTasks"
+      :loading="listLoading"
+    >
+      刷新
+    </a-button>
+    <a-button icon="upload" @click="setTaskUploadVisible(true)">
+      批量上传
+    </a-button>
+    <task-upload-modal
+      @task_list_updated="getAllTasks"
+      @close="setTaskUploadVisible(false)"
+      :visible="taskUploadVisible"
+    />
+  </template>
+
   <a-table
     :columns="columns"
     :data-source="categories"
@@ -76,41 +99,37 @@ const columns = [
   },
   {
     title: '国内测试',
-    dataIndex: 'compulsory',
-    key: 'compulsory',
-    scopedSlots: { customRender: 'compulsory' },
+    dataIndex: 'test_domestic',
+    key: 'test_domestic',
     width: 100,
     align: 'center',
   },
   {
     title: '持证要求',
-    dataIndex: 'compulsory',
-    key: 'compulsory',
-    scopedSlots: { customRender: 'compulsory' },
+    dataIndex: 'hold_requirement',
+    key: 'hold_requirement',
     width: 120,
     align: 'center',
   },
   {
     title: '样机数量',
-    dataIndex: 'compulsory',
-    key: 'compulsory',
-    scopedSlots: { customRender: 'compulsory' },
+    dataIndex: 'sample_qty',
+    key: 'sample_qty',
     width: 100,
     align: 'center',
   },
   {
     title: '参考周期',
-    dataIndex: 'compulsory',
-    key: 'compulsory',
-    scopedSlots: { customRender: 'compulsory' },
+    dataIndex: 'time_cost',
+    key: 'time_cost',
     width: 100,
     align: 'center',
   },
   {
     title: '价格参考',
-    dataIndex: 'compulsory',
-    key: 'compulsory',
-    scopedSlots: { customRender: 'compulsory' },
+    dataIndex: 'cost',
+    key: 'cost',
+    scopedSlots: { customRender: 'cost' },
     width: 100,
     align: 'center',
   },
@@ -136,6 +155,7 @@ export default {
   name: 'CertCategory',
   data() {
     return {
+      listLoading: false,
       columns,
       categories: [],
       pagination: {
