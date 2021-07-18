@@ -132,6 +132,7 @@ export default {
       let data = new FormData();
       data.append('file', this.fileList[0]);
       let fileName = this.fileList[0].name;
+      // todo 这里最好emit一个Promise，在Promise的reject和resolve中操作这个对话框重置和关闭，要不然和api耦合太严重了
       this.doUpload(this.mode, data).then(res => {
         this.$emit("updated", this.mode, fileName, res);
         this.resetModal();

@@ -8,18 +8,17 @@
     <a-button
       icon='sync'
       :disabled="listLoading"
-      @click="getAllTasks"
+      @click="getAllCategories"
       :loading="listLoading"
     >
       刷新
     </a-button>
-    <a-button icon="upload" @click="setTaskUploadVisible(true)">
-      批量上传
-    </a-button>
-    <task-upload-modal
-      @task_list_updated="getAllTasks"
-      @close="setTaskUploadVisible(false)"
-      :visible="taskUploadVisible"
+    <upload-modal
+      title='批量上传认证类型'
+      :do-upload='uploadCategories'
+      tip-of-add='已选择增量上传，仅增加区域和认证名称都不同的行。'
+      @updated='onSuccess'
+      @uploadError='onError'
     />
   </template>
 
@@ -50,7 +49,7 @@
       />
     </span>
 
-    <span slot="action" slot-scope="text, task">
+    <span slot="action" slot-scope="category">
         <a-icon class="task-action" type="form" @click='goToEdit(task.task_no)'/>
         <a-divider type="vertical" />
         <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doTaskDelete(task)">
@@ -62,7 +61,8 @@
 </template>
 
 <script>
-import {getCategories} from '@/api/cert'
+import { getCategories, uploadCategories } from '@/api/cert'
+import UploadModal from '@/views/common/UploadModal'
 
 const columns = [
   {
@@ -157,6 +157,7 @@ export default {
     return {
       listLoading: false,
       columns,
+      uploadCategories,
       categories: [],
       pagination: {
         // total: this.tasks.length,
@@ -179,10 +180,60 @@ export default {
     }
   },
   mounted() {
-    getCategories().then(res => {
-      this.categories = res;
-    })
+    this.getAllCategories();
     this.tableHeight = document.documentElement.clientHeight - 300 + 'px';
+  },
+  methods: {
+    getAllCategories() {
+      this.listLoading = true;
+      getCategories().then(res => {
+        this.categories = res;
+        this.listLoading = false;
+        console.log(res)
+      }).catch(err => {
+        this.tasks=[];
+        this.$notification['error']({
+          message: '获取认证类型清单失败:',
+          description: err
+        })
+        this.listLoading = false;
+      });
+    },
+    onSuccess(mode, fileName, affectedRows) {
+      if (mode === 'replace') {
+        if (affectedRows === -1) {
+          this.$notification['err']({
+            message: fileName + "：认证类型清单替换失败！"
+          })
+        } else {
+          this.$notification['success']({
+            message: fileName + "：认证类型清单替换成功！",
+            description: "上传了 " + affectedRows + " 条数据！"
+          })
+        }
+      } else {
+        if (affectedRows === -1) {
+          this.$notification['err']({
+            message: fileName + "：认证类型清单更新失败！"
+          })
+        } else {
+          this.$notification['success']({
+            message: fileName + "：认证类型清单上传成功！",
+            description: "新增了 " + affectedRows + " 条数据！"
+          })
+        }
+      }
+      this.getAllTasks();
+    },
+    onError(mode, fileName, err) {
+      this.$notification['err']({
+        message: fileName + "文件上传失败！",
+        description: err
+      });
+    },
+  },
+  components: {
+    UploadModal
   }
 }
 </script>

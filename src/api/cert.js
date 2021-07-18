@@ -16,6 +16,7 @@ const certApi = {
   DeleteTaskRecord: 'http://localhost:8899/api/cert/task/record/delete/',
   UpdateTaskRecord: 'http://localhost:8899/api/cert/task/record/update/',
   CategoryList: 'http://localhost:8899/api/cert/category/get/all',
+  UploadCategories: 'http://localhost:8899/api/cert/category/upload',
 }
 
 export function getRegionList() {
@@ -127,6 +128,18 @@ export function getCategories() {
   return request({
     url: certApi.CategoryList,
     method: 'get'
+  })
+}
+
+export function uploadCategories(mode, data) {
+  return request({
+    url: certApi.UploadCategories,
+    method: 'post',
+    params: {
+      mode: mode
+    },
+    contentType: 'multipart/form-data',
+    data: data
   })
 }
 
