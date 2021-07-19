@@ -1,8 +1,5 @@
 <template>
 <div class='uploadModal'>
-  <a-button icon="upload" @click="setModalVisible(true)">
-    批量上传
-  </a-button>
   <a-modal
     :title="title"
     :visible="visible"
@@ -10,7 +7,6 @@
   >
     <a-upload-dragger
       name="file"
-      :multiple="false"
       :headers="headers"
       :before-upload="beforeTaskUpload"
       :file-list="fileList"
@@ -69,16 +65,20 @@ export default {
   name: "UploadModal",
   data() {
     return {
-      visible: false,
       headers:{},
       fileList:[],
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
       mode: "add",
-      uploading: false,
     }
   },
   props: {
+    visible: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
     title: {
       type: String,
       default() {
@@ -103,21 +103,21 @@ export default {
         return 'javascript:void(0);';
       }
     },
-    doUpload: {
-      type: Function,
+    resetAfterAction: {
+      type: Boolean,
       default() {
-        return new Promise(resolve => {
-          this.$message.info('未设置上传功能');
-        })
+        return true;
+      }
+    },
+    uploading: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
   },
   methods: {
-    setModalVisible(visible) {
-      this.visible = visible
-    },
     resetModal() {
-      this.uploading = false;
       this.fileList = [];
       this.mode = 'add';
     },
@@ -128,30 +128,20 @@ export default {
       this.fileList = newFileList;
     },
     handleOk() {
-      this.uploading = true;
-      let data = new FormData();
-      data.append('file', this.fileList[0]);
-      let fileName = this.fileList[0].name;
-      // todo 这里最好emit一个Promise，在Promise的reject和resolve中操作这个对话框重置和关闭，要不然和api耦合太严重了
-      this.doUpload(this.mode, data).then(res => {
-        this.$emit("updated", this.mode, fileName, res);
+      this.$emit('upload',this.mode, this.fileList)
+      if (this.resetAfterAction) {
         this.resetModal();
-        this.closeModal();
-      }).catch(err => {
-        this.$emit("uploadError", this.mode, fileName, err);
-        this.resetModal();
-      });
+      }
     },
     handleCancel() {
-      this.resetModal();
-      this.closeModal();
+      this.$emit('cancel');
+      if (this.resetAfterAction) {
+        this.resetModal();
+      }
     },
     beforeTaskUpload(file) {
       this.fileList = [...this.fileList, file];
       return false;
-    },
-    closeModal() {
-      this.visible = false;
     },
     onTemplateDownload() {
       if (this.templateDownloadUrl === 'javascript:void(0);') {

@@ -13,12 +13,16 @@
     >
       刷新
     </a-button>
+    <a-button icon='upload' @click='showUploadModal'>
+      批量上传
+    </a-button>
     <upload-modal
+      :visible='uploadModalVisible'
+      :uploading='uploading'
       title='批量上传认证类型'
-      :do-upload='uploadCategories'
       tip-of-add='已选择增量上传，仅增加区域和认证名称都不同的行。'
-      @updated='onSuccess'
-      @uploadError='onError'
+      @upload='doUpload'
+      @cancel='hideUploadModal'
     />
   </template>
 
@@ -45,7 +49,6 @@
         :toolbars='toolbars'
         :boxShadow='false'
         :subfield='false'
-        :class='[curMode]'
       />
     </span>
 
@@ -157,7 +160,8 @@ export default {
     return {
       listLoading: false,
       columns,
-      uploadCategories,
+      uploadModalVisible: false,
+      uploading: false,
       categories: [],
       pagination: {
         // total: this.tasks.length,
@@ -199,36 +203,50 @@ export default {
         this.listLoading = false;
       });
     },
-    onSuccess(mode, fileName, affectedRows) {
-      if (mode === 'replace') {
-        if (affectedRows === -1) {
-          this.$notification['err']({
-            message: fileName + "：认证类型清单替换失败！"
-          })
-        } else {
-          this.$notification['success']({
-            message: fileName + "：认证类型清单替换成功！",
-            description: "上传了 " + affectedRows + " 条数据！"
-          })
-        }
-      } else {
-        if (affectedRows === -1) {
-          this.$notification['err']({
-            message: fileName + "：认证类型清单更新失败！"
-          })
-        } else {
-          this.$notification['success']({
-            message: fileName + "：认证类型清单上传成功！",
-            description: "新增了 " + affectedRows + " 条数据！"
-          })
-        }
-      }
-      this.getAllTasks();
+    showUploadModal() {
+      this.uploadModalVisible = true;
     },
-    onError(mode, fileName, err) {
-      this.$notification['err']({
-        message: fileName + "文件上传失败！",
-        description: err
+    hideUploadModal() {
+      this.uploadModalVisible = false;
+    },
+    doUpload(mode, fileList) {
+      this.uploading = true;
+      let data = new FormData();
+      data.append('file', fileList[0]);
+      let fileName = fileList[0].name;
+      uploadCategories(mode, data).then(affectedRows => {
+        if (mode === 'replace') {
+          if (affectedRows === -1) {
+            this.$notification['err']({
+              message: fileName + "：认证类型清单替换失败！"
+            })
+          } else {
+            this.$notification['success']({
+              message: fileName + "：认证类型清单替换成功！",
+              description: "上传了 " + affectedRows + " 条数据！"
+            })
+          }
+        } else {
+          if (affectedRows === -1) {
+            this.$notification['err']({
+              message: fileName + "：认证类型清单更新失败！"
+            })
+          } else {
+            this.$notification['success']({
+              message: fileName + "：认证类型清单上传成功！",
+              description: "新增了 " + affectedRows + " 条数据！"
+            })
+          }
+        }
+        this.uploading = false;
+        this.hideUploadModal();
+        this.getAllCategories();
+      }).catch(err => {
+        this.$notification['error']({
+          message: fileName + "文件上传失败！",
+          description: err.message
+        });
+        this.uploading = false;
       });
     },
   },
