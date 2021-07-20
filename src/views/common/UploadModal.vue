@@ -2,7 +2,7 @@
 <div class='uploadModal'>
   <a-modal
     :title="title"
-    :visible="visible"
+    v-model="modalVisible"
     @cancel="handleCancel"
   >
     <a-upload-dragger
@@ -65,12 +65,17 @@ export default {
   name: "UploadModal",
   data() {
     return {
+      modalVisible: this.visible,
       headers:{},
       fileList:[],
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
       mode: "add",
     }
+  },
+  model: {
+    prop: 'visible',
+    event: 'visibleChange'
   },
   props: {
     visible: {
@@ -116,6 +121,11 @@ export default {
       }
     },
   },
+  watch: {
+    visible(val) {
+      this.modalVisible = val;
+    }
+  },
   methods: {
     resetModal() {
       this.fileList = [];
@@ -138,6 +148,7 @@ export default {
       if (this.resetAfterAction) {
         this.resetModal();
       }
+      this.$emit('visibleChange', false);
     },
     beforeTaskUpload(file) {
       this.fileList = [...this.fileList, file];

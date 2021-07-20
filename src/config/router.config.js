@@ -65,16 +65,10 @@ export const asyncRouterMap = [
             meta: { title: 'menu.cert.prodpool', keepAlive: true }
           },
           {
-            path: '/cert/task/list',
-            name: 'CertTaskList',
-            component: () => import('@/views/cert/task/taskList/CertTaskList'),
-            meta: { title: 'menu.cert.task.list', keepAlive: true }
-          },
-          {
-            path: '/cert/task/edit/:taskNo(.*)?',
-            name: 'CertTaskEdit',
-            component: () => import('@/views/cert/task/taskEdit/CertTaskEdit'),
-            meta: { title: 'menu.cert.task.edit', keepAlive: false }
+            path: '/cert/task/kanban',
+            name: 'CertTaskKanban',
+            component: () => import('@/views/cert/task/TaskKanban'),
+            meta: { title: 'menu.cert.task.kanban', keepAlive: true }
           },
           {
             path: '/cert/category',

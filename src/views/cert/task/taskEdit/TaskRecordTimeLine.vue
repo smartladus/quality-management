@@ -170,11 +170,7 @@ export default {
       console.log('删除记录：', {recNo});
       deleteTaskRecord(recNo).then(res => {
         if (eval(res).deletedCount > 0) {
-          for (let i = 0; i < this.taskRecords.length; i++) {
-            if(this.taskRecords[i].record_no === recNo) {
-              this.taskRecords.splice(i, 1);
-            }
-          }
+          this.taskRecords = this.taskRecords.filter(record => record.record_no !== recNo);
           this.$notification['success']({
             message: '删除任务记录成功'
           })

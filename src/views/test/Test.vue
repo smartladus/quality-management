@@ -1,44 +1,49 @@
 <template>
-<div>
-  <upload-modal
-    title='hahah'
-    :visible='visible'
-    :template-download-url='templateDownloadUrl'
-    :do-upload='uploadTaskList'
-    @updated='onSuccess'
-    @uploadError='onError'
+<page-header-wrapper
+  :tab-list="tabList"
+  :tab-active-key="tabActiveKey"
+  :tab-change="handleTabChange"
+>
+  <template slot='title'>
+    xxxxx
+  </template>
+  <component v-bind:is="content"></component>
 
-  />
-</div>
+</page-header-wrapper>
 </template>
 
 <script>
-import UploadModal from '@/views/common/UploadModal'
-import { uploadTaskList, templateDownloadUrl } from '@/api/cert'
 
 export default {
   name: 'Test',
-  data(){
+  data () {
     return {
-      visible: false,
-      uploadTaskList,
-      templateDownloadUrl: templateDownloadUrl(),
+      tabList: [
+        { key: '1', tab: '台账' },
+        { key: '2', tab: '编辑' },
+      ],
+      tabActiveKey: '1',
+      content: undefined,
     }
-  },
-  components: {
-    UploadModal
   },
   methods: {
-    onSuccess(fileName, res) {
-      this.$message.info(fileName + res);
-    },
-    onError(fileName, err) {
-      this.$message.error(fileName + err);
+    handleTabChange(key) {
+      this.tabActiveKey = key
+      switch (key) {
+        case '1':
+          this.content = () => import('@/views/quality/issue/IssueEdit')
+          break
+        case '2':
+          this.content = () => import('@/views/quality/issue/IssueList')
+          break
+        default:
+          this.content = () => import('@/views/quality/issue/IssueEdit')
+      }
     }
-  }
+  },
 }
 </script>
 
-<style scoped>
+<style lang='less' scoped>
 
 </style>

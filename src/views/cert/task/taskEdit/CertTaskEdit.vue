@@ -1,7 +1,5 @@
 <template>
-<page-header-wrapper
-  :title='title'
->
+<div>
   <a-card v-if='form.task_no === undefined' :bordered="false">
     <a-empty>
       <span slot="description">未选择编辑内容</span>
@@ -23,7 +21,7 @@
       :wrapperCol="{span: 6}"
       :rules="rules"
     >
-      <a-card class='card' :bordered="false" title="进度及待办">
+      <a-card class='card' :bordered="false" :title="title">
 <!--        <task-steps :stat='form.task_stat' />-->
 <!--        <a-divider></a-divider>-->
         <mark-down-editor
@@ -120,7 +118,7 @@
     <a-button class='action'>取消</a-button>
     <a-button type="primary" @click='saveTask' class='action'>保存</a-button>
   </footer-tool-bar>
-</page-header-wrapper>
+</div>
 </template>
 
 <script>
@@ -207,43 +205,33 @@ export default {
         description: err
       })
     })
+    this.loadTaskInfo(this.taskNo);
   },
+  props: ['taskNo'],
   watch: {
     curRegion(val, oldVal) {
       console.log(`curRegion changed from ${oldVal} to ${val}`);
       getCategoriesByRegion(val).then(categories => {
         this.certCategories = categories;
       })
-    }
-  },
-  beforeRouteEnter (to, from, next) {
-    console.log('CertTaskEdit before route enter called')
-    next(vm => {
-      vm.loadTaskInfo(vm, to.params.taskNo);
-    })
-  },
-  beforeRouteUpdate(to, from, next) {
-    console.log('CertTaskEdit before route update called')
-    this.loadTaskInfo(this, to.params.taskNo);
-    next()
+    },
   },
   methods: {
     setModeSelectModal(visible) {
       this.modeSelectModalVisible = visible;
     },
     initEdit(form) {
-      let url = '/cert/task/edit/' + (form.mode === 'new' ? 'new' : form.taskNo);
-      console.log({form, url});
-      this.$router.push(url);
+      this.form.task_no = form.mode === 'new' ? 'new' : form.taskNo;
+      this.loadTaskInfo(this.form.task_no);
     },
-    loadTaskInfo(vm, taskNo) {
+    loadTaskInfo(taskNo) {
       console.log(`taskNo changed to ${taskNo}`);
       if (taskNo === undefined) {
         return;
       }
       if (taskNo === 'new') {
-        vm.form.task_no = 'new';
-        vm.form.task_stat = 'NEW';
+        this.form.task_no = 'new';
+        this.form.task_stat = 'NEW';
         return;
       }
       getCertTask(taskNo).then(res => {
@@ -255,8 +243,8 @@ export default {
             }
           });
         }
-        vm.form = res;
-        vm.curRegion = this.form.region;
+        this.form = res;
+        this.curRegion = this.form.region;
       }).catch(err => {
         this.$notification['error']({
           message: `获取任务 ${taskNo} 信息失败:`,

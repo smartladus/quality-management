@@ -1,8 +1,7 @@
 <template>
-  <page-header-wrapper
-  >
-    <template v-slot:extra>
-      <a-button icon="plus" type="primary" @click="$router.push('/cert/task/edit/new')">
+  <div>
+    <a-space class='action-bar'>
+      <a-button icon="plus" type="primary" @click="goToEdit('new')">
         新建
       </a-button>
       <a-button
@@ -17,16 +16,14 @@
         批量上传
       </a-button>
       <upload-modal
-        :visible='uploadModalVisible'
+        v-model='uploadModalVisible'
         :uploading='uploading'
         title='批量上传任务'
         :template-download-url='templateDownloadUrl'
         tip-of-add='已选择增量上传，仅增加任务编号不同的行。'
         @upload='doUpload'
-        @cancel='hideUploadModal'
       />
-    </template>
-
+    </a-space>
     <a-table
       :columns="columns"
       :data-source="tasks"
@@ -96,7 +93,7 @@
         </a-popconfirm>
       </span>
     </a-table>
-  </page-header-wrapper>
+  </div>
 </template>
 
 <script>
@@ -304,13 +301,12 @@ export default {
     /** 控制table的高度 */
     window.onresize = function () {
       this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
-      console.log(this.tableHeight);
     }
     this.getAllTasks();
   },
   methods: {
     goToEdit(taskNo) {
-      this.$router.push('/cert/task/edit/' + taskNo);
+      this.$emit('edit', taskNo);
     },
     getAllTasks() {
       this.listLoading = true;
@@ -329,9 +325,6 @@ export default {
     },
     showUploadModal() {
       this.uploadModalVisible = true;
-    },
-    hideUploadModal() {
-      this.uploadModalVisible = false;
     },
     doUpload(mode, fileList) {
       this.uploading = true;
@@ -363,7 +356,7 @@ export default {
           }
         }
         this.uploading = false;
-        this.hideUploadModal();
+        this.uploadModalVisible = false;
         this.getAllTasks();
       }).catch(err => {
         this.$notification['err']({
@@ -379,12 +372,7 @@ export default {
           this.$notification['success']({
             message: "任务 " + task.task_no + " 已成功删除！"
           })
-          for (let i = 0; i < this.tasks.length; i++) {
-            if (this.tasks[i].task_no === task.task_no) {
-              this.tasks.splice(i, 1);
-              break;
-            }
-          }
+          this.tasks = this.tasks.filter(item => item.task_no !== task.task_no);
         } else {
           this.$notification['error']({
             message: "任务 " + task.task_no + " 未找到，删除失败！"
@@ -420,5 +408,8 @@ export default {
   max-height: 120px;
   word-wrap:break-word;
   overflow-y: auto;
+}
+.action-bar{
+  margin-bottom: 8px;
 }
 </style>

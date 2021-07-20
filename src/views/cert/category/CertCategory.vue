@@ -1,7 +1,7 @@
 <template>
 <page-header-wrapper>
   <template v-slot:extra>
-    <a-button icon="plus" type="primary" @click="$router.push('/cert/task/edit/new')">
+    <a-button icon="plus" type="primary" @click='openEditModal("new", newCategory)'>
       新建
     </a-button>
 
@@ -17,12 +17,11 @@
       批量上传
     </a-button>
     <upload-modal
-      :visible='uploadModalVisible'
+      v-model='uploadModalVisible'
       :uploading='uploading'
       title='批量上传认证类型'
       tip-of-add='已选择增量上传，仅增加区域和认证名称都不同的行。'
       @upload='doUpload'
-      @cancel='hideUploadModal'
     />
   </template>
 
@@ -31,7 +30,7 @@
     :data-source="categories"
     :pagination=pagination
     :scroll="{ x: 1500, y: tableHeight}"
-    :rowKey="record => record.id"
+    :rowKey="category => category.id"
     :loading="listLoading"
     bordered
   >
@@ -42,30 +41,27 @@
       <a-tag v-for='(item, index) in type' color='blue' :key='index'>{{item}}</a-tag>
     </span>
 
-    <span slot="comments" slot-scope="comments">
-      <mavon-editor
-        class='editor'
-        v-model='comments'
-        :toolbars='toolbars'
-        :boxShadow='false'
-        :subfield='false'
-      />
-    </span>
-
-    <span slot="action" slot-scope="category">
-        <a-icon class="task-action" type="form" @click='goToEdit(task.task_no)'/>
-        <a-divider type="vertical" />
-        <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doTaskDelete(task)">
-          <a-icon class="task-action task-action-delete" type="delete"/>
-        </a-popconfirm>
+    <span slot="action" slot-scope="record">
+      <a-icon class="task-action" type="form" @click='openEditModal("edit", record)'/>
+      <a-divider type="vertical" />
+      <a-popconfirm title="确认删除认证类型？" ok-text="确认" cancel-text="取消" @confirm="doDelete(record)">
+        <a-icon class="task-action task-action-delete" type="delete"/>
+      </a-popconfirm>
       </span>
   </a-table>
+
+  <category-edit-modal
+    :title='editModal.title'
+    v-model='editModal.visible'
+    :category='editModal.category'
+  />
 </page-header-wrapper>
 </template>
 
 <script>
 import { getCategories, uploadCategories } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
+import CategoryEditModal from '@/views/cert/category/CategoryEditModal'
 
 const columns = [
   {
@@ -140,8 +136,7 @@ const columns = [
     title: '备注',
     dataIndex: 'comments',
     key: 'comments',
-    scopedSlots: { customRender: 'comments' },
-    align: 'center',
+    align: 'left',
   },
   {
     title: '操作',
@@ -153,6 +148,9 @@ const columns = [
   },
 ]
 
+const newCategory = {
+  region: undefined
+}
 
 export default {
   name: 'CertCategory',
@@ -162,7 +160,13 @@ export default {
       columns,
       uploadModalVisible: false,
       uploading: false,
+      newCategory,
       categories: [],
+      editModal: {
+        title: '',
+        visible: false,
+        category: undefined
+      },
       pagination: {
         // total: this.tasks.length,
         hideOnSinglePage: true,
@@ -185,7 +189,9 @@ export default {
   },
   mounted() {
     this.getAllCategories();
-    this.tableHeight = document.documentElement.clientHeight - 300 + 'px';
+    window.onresize = function () {
+      this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    }
   },
   methods: {
     getAllCategories() {
@@ -205,9 +211,6 @@ export default {
     },
     showUploadModal() {
       this.uploadModalVisible = true;
-    },
-    hideUploadModal() {
-      this.uploadModalVisible = false;
     },
     doUpload(mode, fileList) {
       this.uploading = true;
@@ -239,7 +242,6 @@ export default {
           }
         }
         this.uploading = false;
-        this.hideUploadModal();
         this.getAllCategories();
       }).catch(err => {
         this.$notification['error']({
@@ -249,14 +251,26 @@ export default {
         this.uploading = false;
       });
     },
+    openEditModal(mode, record) {
+      this.editModal.title = mode === 'new' ? '新建认证类型' : '编辑认证类型';
+      this.editModal.visible = true;
+      this.editModal.category = record;
+    },
+    doDelete(record) {
+      // todo 删除认证类型
+    }
   },
   components: {
-    UploadModal
+    UploadModal,
+    CategoryEditModal
   }
 }
 </script>
 
 <style scoped>
+.divider{
+  margin: -4px;
+}
 .task-action {
   font-size: 16px;
   cursor: pointer;
