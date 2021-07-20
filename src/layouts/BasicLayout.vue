@@ -18,13 +18,13 @@
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
           增加 Header 左侧内容区自定义
     -->
-    <template v-slot:headerContentRender>
-      <div>
-        <a-tooltip title="刷新页面">
-          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="reloadPage" />
-        </a-tooltip>
-      </div>
-    </template>
+<!--    <template v-slot:headerContentRender>-->
+<!--      <div>-->
+<!--        <a-tooltip title="刷新页面">-->
+<!--          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="reloadPage" />-->
+<!--        </a-tooltip>-->
+<!--      </div>-->
+<!--    </template>-->
 
     <setting-drawer v-if="isDev" :settings="settings" @change="handleSettingChange">
       <div style="margin: 12px 0;">

@@ -1,6 +1,6 @@
 <template>
-<page-header-wrapper>
-  <template v-slot:extra>
+<div>
+  <a-space class='action-bar'>
     <a-button icon="plus" type="primary" @click='openEditModal("new", newCategory)'>
       新建
     </a-button>
@@ -23,7 +23,7 @@
       tip-of-add='已选择增量上传，仅增加区域和认证名称都不同的行。'
       @upload='doUpload'
     />
-  </template>
+  </a-space>
 
   <a-table
     :columns="columns"
@@ -55,13 +55,13 @@
     v-model='editModal.visible'
     :category='editModal.category'
   />
-</page-header-wrapper>
+</div>
 </template>
 
 <script>
 import { getCategories, uploadCategories } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
-import CategoryEditModal from '@/views/cert/category/CategoryEditModal'
+import CategoryEditModal from '@/views/cert/category/categoryList/CategoryEditModal'
 
 const columns = [
   {
@@ -153,7 +153,7 @@ const newCategory = {
 }
 
 export default {
-  name: 'CertCategory',
+  name: 'CategoryList',
   data() {
     return {
       listLoading: false,
@@ -268,9 +268,6 @@ export default {
 </script>
 
 <style scoped>
-.divider{
-  margin: -4px;
-}
 .task-action {
   font-size: 16px;
   cursor: pointer;
@@ -279,13 +276,9 @@ export default {
 .task-action-delete {
   color: #ED6567;
 }
-.editor{
-  z-index: 0;
-  border: none;
-  min-height: 0;
-  margin: -16px;
-}
-.editor.edit{
-  min-height: 300px;
+.action-bar{
+  position: absolute;
+  right: -8px;
+  top: 36px;
 }
 </style>

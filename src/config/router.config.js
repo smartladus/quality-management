@@ -16,6 +16,12 @@ export const asyncRouterMap = [
     redirect: '/cert',
     children: [
       {
+        path: '/test',
+        name: 'test',
+        component: () => import('@/views/test/Test'),
+        meta: { title: '测试页面', keepAlive: true }
+      },
+      {
         path: '/quality',
         name: 'quality',
         redirect: '/quality/delivery',
@@ -31,30 +37,15 @@ export const asyncRouterMap = [
           {
             path: '/quality/issue',
             name: 'Issue',
-            redirect: '/quality/issue/list',
-            component: () => import('@/views/quality/issue/IssueLayout'),
+            component: () => import('@/views/quality/issue/IssueKanban'),
             meta: { title: 'menu.quality.issue', keepAlive: true },
-            children: [
-              {
-                path: '/quality/issue/list',
-                name: 'IssueList',
-                component: () => import('@/views/quality/issue/IssueList'),
-                meta: { title: 'menu.quality.issue.list', keepAlive: true },
-              },
-              {
-                path: '/quality/issue/edit',
-                name: 'IssueEdit',
-                component: () => import('@/views/quality/issue/IssueEdit'),
-                meta: { title: 'menu.quality.issue.edit', keepAlive: true }
-              },
-            ]
           },
         ]
       },
       {
         path: '/cert',
         name: 'cert',
-        redirect: '/cert/task/list',
+        redirect: '/cert/task/kanban',
         component: RouteView,
         meta: { title: 'menu.cert', keepAlive: true, icon: 'audit' },
         children: [
@@ -65,7 +56,7 @@ export const asyncRouterMap = [
             meta: { title: 'menu.cert.prodpool', keepAlive: true }
           },
           {
-            path: '/cert/task/kanban',
+            path: '/cert/task',
             name: 'CertTaskKanban',
             component: () => import('@/views/cert/task/TaskKanban'),
             meta: { title: 'menu.cert.task.kanban', keepAlive: true }
@@ -73,7 +64,7 @@ export const asyncRouterMap = [
           {
             path: '/cert/category',
             name: 'CertCategory',
-            component: () => import('@/views/cert/category/CertCategory'),
+            component: () => import('@/views/cert/category/CategoryLayout'),
             meta: { title: 'menu.cert.category', keepAlive: true }
           },
           {
@@ -83,12 +74,6 @@ export const asyncRouterMap = [
             meta: { title: 'menu.cert.certificate', keepAlive: true }
           }
         ]
-      },
-      {
-        path: '/test',
-        name: 'test',
-        component: () => import('@/views/test/Test'),
-        meta: { title: '测试页面', keepAlive: true }
       },
       // dashboard
       {

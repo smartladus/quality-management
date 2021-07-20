@@ -5,7 +5,6 @@
   :tab-change="handleTabChange"
 >
   <template slot='title'><span/></template>
-
   <cert-task-list
     v-if='tabActiveKey === "1"'
     @edit='goToEdit'
@@ -13,6 +12,7 @@
   <cert-task-edit
     v-if='tabActiveKey === "2"'
     :task-no='taskNoToEdit'
+    @cancel='onCancel'
   />
 </page-header-wrapper>
 </template>
@@ -43,7 +43,10 @@ export default {
     },
     goToEdit(taskNo) {
       this.taskNoToEdit = taskNo;
-      this.tabActiveKey = '2';
+      this.handleTabChange("2");
+    },
+    onCancel() {
+      this.handleTabChange("1");
     }
   },
   components: {

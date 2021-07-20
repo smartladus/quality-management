@@ -410,6 +410,8 @@ export default {
   overflow-y: auto;
 }
 .action-bar{
-  margin-bottom: 8px;
+  position: absolute;
+  right: -8px;
+  top: 36px;
 }
 </style>

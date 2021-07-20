@@ -115,7 +115,7 @@
       </span>
     </a-popover>
     <a-button @click='printForm' class='action'>打印</a-button>
-    <a-button class='action'>取消</a-button>
+    <a-button @click='cancelEdit' class='action'>取消</a-button>
     <a-button type="primary" @click='saveTask' class='action'>保存</a-button>
   </footer-tool-bar>
 </div>
@@ -320,6 +320,9 @@ export default {
     },
     printForm() {
       console.log(this.form);
+    },
+    cancelEdit() {
+      this.$emit('cancel');
     }
   },
   components: {
