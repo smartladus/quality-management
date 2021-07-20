@@ -45,7 +45,7 @@ export const asyncRouterMap = [
       {
         path: '/cert',
         name: 'cert',
-        redirect: '/cert/task/kanban',
+        redirect: '/cert/task',
         component: RouteView,
         meta: { title: 'menu.cert', keepAlive: true, icon: 'audit' },
         children: [

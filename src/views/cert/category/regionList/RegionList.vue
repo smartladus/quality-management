@@ -34,11 +34,16 @@
     :loading="listLoading"
   >
     <template slot='continent' slot-scope='text, record'>
-      <a-input
+      <a-select
         v-if='record.editting'
-        type='text'
-        :value='text'
-      />
+        style='width: 100px'
+        placeholder='选择大洲'
+        v-model='record.continent'
+      >
+        <a-select-option v-for="c in continents" :value="c" key="c">
+          {{ c }}
+        </a-select-option>
+      </a-select>
       <template v-else>{{text}}</template>
     </template>
 
@@ -104,6 +109,8 @@ const newCategory = {
   region: undefined
 }
 
+const continents = ['亚洲', '欧洲', '北美洲', '南美洲', '非洲', '南极洲', '全球']
+
 export default {
   name: 'RegionList',
   data() {
@@ -113,6 +120,7 @@ export default {
       uploadModalVisible: false,
       uploading: false,
       regions:[],
+      continents,
       pagination: {
         // total: this.tasks.length,
         hideOnSinglePage: true,
@@ -138,7 +146,11 @@ export default {
     getAllRegion() {
       this.listLoading = true;
       getRegionList().then(res => {
+        for(let region of res) {
+          region.editting = false;
+        }
         this.regions = res;
+        console.log(this.regions)
         this.listLoading = false;
       }).catch(err => {
         this.$notification['error']({
@@ -195,9 +207,9 @@ export default {
     },
     edit(id) {
       console.log(id)
-      const target = this.regions.find(item => item.id === id)
+      let target = this.regions.find(item => item.id === id)
       target._originalData = { ...target }
-      target.editting = true;
+      target.editting = !target.editting;
       console.log(target)
     }
   },
