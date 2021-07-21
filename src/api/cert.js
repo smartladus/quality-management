@@ -2,6 +2,8 @@ import request from '@/utils/request'
 
 const certApi = {
   RegionList: 'http://localhost:8899/api/cert/region/get/all',
+  RegionOperate: 'http://localhost:8899/api/cert/region/',
+  RegionUpload: 'http://localhost:8899/api/cert/region/upload',
   TaskList: 'http://localhost:8899/api/cert/task/get/all',
   TaskNoList: 'http://localhost:8899/api/cert/task/no/get/',
   GetCertTask: 'http://localhost:8899/api/cert/task/get/',
@@ -23,6 +25,34 @@ export function getRegionList() {
   return request({
     url: certApi.RegionList,
     method: 'get'
+  })
+}
+
+export function saveRegion(region) {
+  return request({
+    url: certApi.RegionOperate,
+    method: 'post',
+    data: region
+  })
+}
+
+export function deleteRegion(region) {
+  return request({
+    url: certApi.RegionOperate,
+    method: 'delete',
+    data: region
+  })
+}
+
+export function uploadRegionList(mode, data) {
+  return request({
+    url: certApi.RegionUpload,
+    method: 'post',
+    params: {
+      mode: mode
+    },
+    contentType: 'multipart/form-data',
+    data: data
   })
 }
 

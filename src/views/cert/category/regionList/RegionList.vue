@@ -1,7 +1,7 @@
 <template>
 <div>
   <a-space class='action-bar'>
-    <a-button icon="plus" type="primary" @click='openEditModal("new", newCategory)'>
+    <a-button icon="plus" type="primary" @click='addNewLine'>
       新建
     </a-button>
 
@@ -26,9 +26,10 @@
   </a-space>
 
   <a-table
+    id='regionTable'
     :columns="columns"
     :data-source="regions"
-    :pagination=pagination
+    :pagination='false'
     :scroll="{y: tableHeight}"
     :rowKey="record => record.id"
     :loading="listLoading"
@@ -40,36 +41,46 @@
         placeholder='选择大洲'
         v-model='record.continent'
       >
-        <a-select-option v-for="c in continents" :value="c" key="c">
-          {{ c }}
+        <a-select-option v-for="continent in continents" :value="continent" :key="continent">
+          {{ continent }}
         </a-select-option>
       </a-select>
-      <template v-else>{{text}}</template>
+      <template v-else>{{record.continent}}</template>
     </template>
 
-    <template slot='abbr' slot-scope='text, record'>
+    <template v-for='col in ["abbr", "region_chs"]' :slot='col' slot-scope='text, record'>
       <a-input
         v-if='record.editting'
         type='text'
-        :value='text'
+        v-model='record[col]'
+        style='max-width: 150px'
       />
-      <template v-else>{{text}}</template>
+      <template v-else>{{record[col]}}</template>
     </template>
 
-    <span slot="action" slot-scope="record">
-      <a-icon class="task-action" type="form" @click='edit(record.id)'/>
-      <a-divider type="vertical" />
-      <a-popconfirm title="确认删除认证类型？" ok-text="确认" cancel-text="取消" @confirm="doDelete(record)">
-        <a-icon class="task-action task-action-delete" type="delete"/>
-      </a-popconfirm>
+    <span slot="action" slot-scope="text, record">
+      <template v-if='!record.editting'>
+        <a-button @click='edit(record, "edit")' :size='actionButtonSize'>编辑</a-button>
+        <a-divider type="vertical" />
+        <a-popconfirm title="确认删除认证类型？" ok-text="确认" cancel-text="取消" @confirm="doDelete(record)">
+          <a-button type="danger" ghost :size='actionButtonSize'>删除</a-button>
+        </a-popconfirm>
+      </template>
+      <template v-else>
+        <a-button type='primary' :size='actionButtonSize' @click='saveEdit(record, "new")'>保存</a-button>
+        <a-divider type="vertical" />
+        <a-button :size='actionButtonSize' @click='cancelEdit(record)'>取消</a-button>
+      </template>
     </span>
   </a-table>
 </div>
 </template>
 
 <script>
-import { getRegionList } from '@/api/cert'
+import { getRegionList, saveRegion, deleteRegion, uploadRegionList } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
+import { momentToString } from 'ant-design-vue/lib/_util/moment-util'
+import moment from 'moment'
 
 const columns = [
   {
@@ -81,7 +92,7 @@ const columns = [
     align: 'center',
   },
   {
-    title: '区域简称（2位英文字母）',
+    title: '区域简称（2~3位英文字母）',
     dataIndex: 'abbr',
     key: 'abbr',
     width: 120,
@@ -121,18 +132,7 @@ export default {
       uploading: false,
       regions:[],
       continents,
-      pagination: {
-        // total: this.tasks.length,
-        hideOnSinglePage: true,
-        pageSize: 50,
-        showQuickJumper: true,
-        showSizeChanger: true,
-        pageSizeOptions: ["50", "100", "200", "500"],//每页中显示的数据
-        showTotal: total => `共 ${total} 个`,  //分页中显示总的数据
-        onShowSizeChange(current, pageSize) {
-          console.log('size changed', pageSize)
-        },
-      },
+      actionButtonSize: 'small',
       tableHeight: document.documentElement.clientHeight - 300 + 'px'
     }
   },
@@ -168,49 +168,111 @@ export default {
       let data = new FormData();
       data.append('file', fileList[0]);
       let fileName = fileList[0].name;
-      // uploadCategories(mode, data).then(affectedRows => {
-      //   if (mode === 'replace') {
-      //     if (affectedRows === -1) {
-      //       this.$notification['err']({
-      //         message: fileName + "：认证类型清单替换失败！"
-      //       })
-      //     } else {
-      //       this.$notification['success']({
-      //         message: fileName + "：认证类型清单替换成功！",
-      //         description: "上传了 " + affectedRows + " 条数据！"
-      //       })
-      //     }
-      //   } else {
-      //     if (affectedRows === -1) {
-      //       this.$notification['err']({
-      //         message: fileName + "：认证类型清单更新失败！"
-      //       })
-      //     } else {
-      //       this.$notification['success']({
-      //         message: fileName + "：认证类型清单上传成功！",
-      //         description: "新增了 " + affectedRows + " 条数据！"
-      //       })
-      //     }
-      //   }
-      //   this.uploading = false;
-      //   this.getAllCategories();
-      // }).catch(err => {
-      //   this.$notification['error']({
-      //     message: fileName + "文件上传失败！",
-      //     description: err.message
-      //   });
-      //   this.uploading = false;
-      // });
+      uploadRegionList(mode, data).then(affectedRows => {
+        if (mode === 'replace') {
+          if (affectedRows === -1) {
+            this.$notification['err']({
+              message: fileName + "：认证区域清单替换失败！"
+            })
+          } else {
+            this.$notification['success']({
+              message: fileName + "：认证区域清单替换成功！",
+              description: "上传了 " + affectedRows + " 条数据！"
+            })
+          }
+        } else {
+          if (affectedRows === -1) {
+            this.$notification['err']({
+              message: fileName + "：认证区域清单更新失败！"
+            })
+          } else {
+            this.$notification['success']({
+              message: fileName + "：认证区域清单上传成功！",
+              description: "新增了 " + affectedRows + " 条数据！"
+            })
+          }
+        }
+        this.uploading = false;
+        this.uploadModalVisible = false;
+        this.getAllRegion();
+      }).catch(err => {
+        this.$notification['error']({
+          message: fileName + "文件上传失败！",
+          description: err.message
+        });
+        this.uploading = false;
+      });
     },
     doDelete(record) {
-      // todo 删除认证类型
+      deleteRegion(record).then(res => {
+        if (res.deletedCount > 0) {
+          this.regions.splice(this.regions.findIndex(region => region.id === record.id), 1);
+          this.$notification['success']({
+            message: '认证区域已删除！',
+          });
+        } else {
+          this.$notification['error']({
+            message: '认证区删除改失败！'
+          });
+        }
+      }).catch(err => {
+        this.$notification['error']({
+          message: '认证区删除改失败！',
+          description: err.message
+        });
+      });
     },
-    edit(id) {
-      console.log(id)
-      let target = this.regions.find(item => item.id === id)
-      target._originalData = { ...target }
-      target.editting = !target.editting;
-      console.log(target)
+    edit(record) {
+      record._originalData = { ...record }
+      record.editting = true;
+    },
+    saveEdit(record, mode) {
+      if (mode === 'new') {
+        record.id = undefined;
+      }
+      console.log('saving region: ', record);
+      saveRegion(record).then(res => {
+        if (res !== null) {
+          this.$notification['success']({
+            message: '认证区域修改已保存！',
+          });
+          record.id = res.id;
+          record._originalData = undefined
+          record.editting = false;
+        } else {
+          this.$notification['error']({
+            message: '认证区域修改失败！'
+          });
+          this.cancelEdit(record);
+        }
+      }).catch(err => {
+        this.$notification['error']({
+          message: '认证区域修改失败！',
+          description: err.message
+        })
+        this.cancelEdit(record);
+      })
+    },
+    cancelEdit(record){
+      Object.keys(record).forEach(key => { record[key] = record._originalData[key] })
+      record._originalData = undefined
+    },
+    addNewLine() {
+      let region = {
+        id: momentToString(moment()),
+        continent: undefined,
+        abbr:'',
+        region_chs:'',
+        editting: true
+      }
+      console.log('adding region: ', region)
+      this.regions.unshift(region);
+      //- 获取table的dom节点
+      let parentDom = document.getElementById('regionTable')
+      // 获取table下ant-table-body的dom节点
+      let childDom = parentDom && parentDom.getElementsByClassName('ant-table-body')
+      // 滚动条置顶
+      childDom[0].scrollTop = 0
     }
   },
   components: {
