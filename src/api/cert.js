@@ -1,8 +1,6 @@
 import request from '@/utils/request'
 
 const certApi = {
-  RegionList: 'http://localhost:8899/api/cert/region/get/all',
-  RegionOperate: 'http://localhost:8899/api/cert/region/',
   RegionUpload: 'http://localhost:8899/api/cert/region/upload',
   TaskList: 'http://localhost:8899/api/cert/task/get/all',
   TaskNoList: 'http://localhost:8899/api/cert/task/no/get/',
@@ -19,26 +17,36 @@ const certApi = {
   UpdateTaskRecord: 'http://localhost:8899/api/cert/task/record/update/',
   CategoryList: 'http://localhost:8899/api/cert/category/get/all',
   UploadCategories: 'http://localhost:8899/api/cert/category/upload',
+
+  Regions: 'http://localhost:8899/api/cert/regions'
 }
 
-export function getRegionList() {
+export function getAllRegions() {
   return request({
-    url: certApi.RegionList,
+    url: certApi.Regions,
     method: 'get'
   })
 }
 
-export function saveRegion(region) {
+export function insertRegion(region) {
   return request({
-    url: certApi.RegionOperate,
+    url: certApi.Regions,
     method: 'post',
+    data: region
+  })
+}
+
+export function updateRegion(region) {
+  return request({
+    url: certApi.Regions,
+    method: 'put',
     data: region
   })
 }
 
 export function deleteRegion(region) {
   return request({
-    url: certApi.RegionOperate,
+    url: certApi.Regions,
     method: 'delete',
     data: region
   })

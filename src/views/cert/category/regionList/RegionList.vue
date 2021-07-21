@@ -8,7 +8,7 @@
     <a-button
       icon='sync'
       :disabled="listLoading"
-      @click="getAllRegion"
+      @click="reloadRegionList"
       :loading="listLoading"
     >
       刷新
@@ -67,7 +67,7 @@
         </a-popconfirm>
       </template>
       <template v-else>
-        <a-button type='primary' :size='actionButtonSize' @click='saveEdit(record, "new")'>保存</a-button>
+        <a-button type='primary' :size='actionButtonSize' @click='doSave(record)'>保存</a-button>
         <a-divider type="vertical" />
         <a-button :size='actionButtonSize' @click='cancelEdit(record)'>取消</a-button>
       </template>
@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { getRegionList, saveRegion, deleteRegion, uploadRegionList } from '@/api/cert'
+import { getAllRegions, insertRegion, updateRegion, deleteRegion, uploadRegionList } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
 import { momentToString } from 'ant-design-vue/lib/_util/moment-util'
 import moment from 'moment'
@@ -137,15 +137,15 @@ export default {
     }
   },
   mounted() {
-    this.getAllRegion();
+    this.reloadRegionList();
     window.onresize = function () {
       this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
     }
   },
   methods: {
-    getAllRegion() {
+    reloadRegionList() {
       this.listLoading = true;
-      getRegionList().then(res => {
+      getAllRegions().then(res => {
         for(let region of res) {
           region.editting = false;
         }
@@ -194,7 +194,7 @@ export default {
         }
         this.uploading = false;
         this.uploadModalVisible = false;
-        this.getAllRegion();
+        this.reloadRegionList();
       }).catch(err => {
         this.$notification['error']({
           message: fileName + "文件上传失败！",
@@ -208,58 +208,88 @@ export default {
         if (res.deletedCount > 0) {
           this.regions.splice(this.regions.findIndex(region => region.id === record.id), 1);
           this.$notification['success']({
-            message: '认证区域已删除！',
+            message: `认证区域 ${record.region_chs} 已删除！`,
           });
         } else {
           this.$notification['error']({
-            message: '认证区删除改失败！'
+            message: `认证区域 ${record.region_chs} 删除改失败！`
           });
         }
       }).catch(err => {
         this.$notification['error']({
-          message: '认证区删除改失败！',
+          message: `认证区域 ${record.region_chs} 删除改失败！`,
           description: err.message
         });
       });
     },
     edit(record) {
+      // 开始编辑，保存一份原始数据
       record._originalData = { ...record }
       record.editting = true;
     },
-    saveEdit(record, mode) {
-      if (mode === 'new') {
-        record.id = undefined;
-      }
-      console.log('saving region: ', record);
-      saveRegion(record).then(res => {
-        if (res !== null) {
+    doSave(record) {
+      record.id.includes('new-region') ? this.saveNewRegion(record) : this.saveChangedRegion(record);
+    },
+    saveNewRegion(record) {
+      record.id = undefined;
+      insertRegion(record).then(region => {
+        if (region !== null) {
           this.$notification['success']({
-            message: '认证区域修改已保存！',
+            message: `成功添加认证区域：${record.region_chs}`,
           });
-          record.id = res.id;
+          record.id = region.id;
           record._originalData = undefined
           record.editting = false;
         } else {
           this.$notification['error']({
-            message: '认证区域修改失败！'
+            message: '添加认证区域失败！'
           });
           this.cancelEdit(record);
         }
       }).catch(err => {
         this.$notification['error']({
-          message: '认证区域修改失败！',
+          message: '添加认证区域失败！',
+          description: err.message
+        })
+        this.cancelEdit(record);
+      })
+    },
+    saveChangedRegion(record) {
+      updateRegion(record).then(region => {
+        if (region !== null) {
+          this.$notification['success']({
+            message: `认证区域 ${record.region_chs} 的修改已保存！`,
+          });
+          record._originalData = undefined
+          record.editting = false;
+        } else {
+          this.$notification['error']({
+            message: `认证区域 ${record.region_chs} 修改失败！`
+          });
+          this.cancelEdit(record);
+        }
+      }).catch(err => {
+        this.$notification['error']({
+          message: `认证区域 ${record.region_chs} 修改失败！`,
           description: err.message
         })
         this.cancelEdit(record);
       })
     },
     cancelEdit(record){
-      Object.keys(record).forEach(key => { record[key] = record._originalData[key] })
-      record._originalData = undefined
+      // 如果是新建的行则直接删除
+      if (record.id.includes('new-region')) {
+        this.regions.splice(this.regions.findIndex(region => region.id === record.id), 1);
+      } else {
+        // 如果是已经存在的实际则把原始数据从备份里复制回来
+        Object.keys(record).forEach(key => { record[key] = record._originalData[key] })
+        record._originalData = undefined
+      }
     },
     addNewLine() {
+      // 新建一个region，为了避免id重复，用时间生成
       let region = {
-        id: momentToString(moment()),
+        id: 'new-region' + momentToString(moment()),
         continent: undefined,
         abbr:'',
         region_chs:'',
