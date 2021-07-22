@@ -116,7 +116,7 @@
     </a-popover>
     <a-button @click='printForm' class='action'>打印</a-button>
     <a-button @click='cancelEdit' class='action'>取消</a-button>
-    <a-button type="primary" @click='saveTask' class='action'>保存</a-button>
+    <a-button type="primary" @click='doSave' class='action'>保存</a-button>
   </footer-tool-bar>
 </div>
 </template>
@@ -126,7 +126,7 @@ import ModeSelectModal from '@/views/cert/task/taskEdit/ModeSelectModal'
 import TaskRecordTimeLine from '@/views/cert/task/taskEdit/TaskRecordTimeLine'
 import TaskSteps from '@/views/cert/task/taskEdit/TaskSteps'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
-import {getRegionList, getCertTask, getCategoriesByRegion, updateTask, insertTask} from '@/api/cert'
+import {getAllRegions, getTask, getCategoriesByRegion, updateTask, insertTask} from '@/api/cert'
 import { baseMixin } from '@/store/app-mixin'
 import FooterToolBar from '@/components/FooterToolbar'
 import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
@@ -196,7 +196,7 @@ export default {
     }
   },
   mounted() {
-    getRegionList().then(res => {
+    getAllRegions().then(res => {
       this.regions = res;
       // console.log('认证区域列表已获取：', res)
     }).catch(err => {
@@ -212,6 +212,7 @@ export default {
     curRegion(val, oldVal) {
       console.log(`curRegion changed from ${oldVal} to ${val}`);
       getCategoriesByRegion(val).then(categories => {
+        console.log(`categories: ${categories}`)
         this.certCategories = categories;
       })
     },
@@ -234,21 +235,23 @@ export default {
         this.form.task_stat = 'NEW';
         return;
       }
-      getCertTask(taskNo).then(res => {
+      getTask(taskNo).then(res => {
         // 如果返回的任务信息中存在null，则设置为空字符串
-        for (let key in res) {
-          Object.getOwnPropertyNames(res).forEach(function(key){
-            if (res[key] === null) {
-              res[key] = '';
+        console.log(res)
+        let task = res.data;
+        for (let key in task) {
+          Object.getOwnPropertyNames(task).forEach(function(key){
+            if (task[key] === null) {
+              task[key] = '';
             }
           });
         }
-        this.form = res;
+        this.form = task;
         this.curRegion = this.form.region;
       }).catch(err => {
         this.$notification['error']({
           message: `获取任务 ${taskNo} 信息失败:`,
-          description: err
+          description: err.message
         })
       })
     },
@@ -273,7 +276,7 @@ export default {
         },
       });
     },
-    saveTask() {
+    doSave() {
       console.log('saving task ============================================\n', this.form)
       this.errors = [];
       this.$refs.taskForm.validate((valid, fieldErrs) => {
@@ -281,19 +284,23 @@ export default {
           console.log('success submit!!');
           if (this.form.task_no === 'new') {
             insertTask(this.form).then(res => {
-              if (res.task_no) {
-                this.$router.push("/cert/task/edit/" + res.task_no);
+              if (res.result === 'SUCCESS') {
+                this.form = res.data;
                 this.$notification['success']({
                   message: '任务添加成功',
                 })
               }
-
             })
           } else {
             updateTask(this.form).then(res => {
-              if (res === 'SUCCESS') {
+              if (res.result === 'SUCCESS') {
                 this.$notification['success']({
                   message: '任务信息已更新',
+                })
+              } else {
+                this.$notification['error']({
+                  message: '任务信息更新失败',
+                  description: res.msg
                 })
               }
             })

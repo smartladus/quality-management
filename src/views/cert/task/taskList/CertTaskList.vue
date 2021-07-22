@@ -7,7 +7,7 @@
       <a-button
         icon='sync'
         :disabled="listLoading"
-        @click="getAllTasks"
+        @click="reloadTasks"
         :loading="listLoading"
       >
         刷新
@@ -88,7 +88,7 @@
       <span slot="action" slot-scope="text, task">
         <a-icon class="task-action" type="form" @click='goToEdit(task.task_no)'/>
         <a-divider type="vertical" />
-        <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doTaskDelete(task)">
+        <a-popconfirm title="确认删除任务？" ok-text="确认" cancel-text="取消" @confirm="doDelete(task)">
           <a-icon class="task-action task-action-delete" type="delete"/>
         </a-popconfirm>
       </span>
@@ -97,8 +97,7 @@
 </template>
 
 <script>
-import { getCertTaskList, deleteTask } from '@/api/cert'
-import { uploadTaskList, templateDownloadUrl } from '@/api/cert'
+import { getAllTasks, deleteTask, uploadTasks, templateDownloadUrl } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
 import TaskStatTag from '@/views/cert/task/TaskStatTag'
 
@@ -302,23 +301,30 @@ export default {
     window.onresize = function () {
       this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
     }
-    this.getAllTasks();
+    this.reloadTasks();
   },
   methods: {
     goToEdit(taskNo) {
       this.$emit('edit', taskNo);
     },
-    getAllTasks() {
+    reloadTasks() {
       this.listLoading = true;
-      getCertTaskList().then(res => {
-        this.tasks = res;
+      getAllTasks().then(res => {
+        if (res.result === 'SUCCESS') {
+          this.tasks = res.data;
+        } else {
+          this.tasks=[];
+          this.$notification['error']({
+            message: '获取任务清单失败:',
+            description: res.msg
+          })
+        }
         this.listLoading = false;
-        console.log(res)
       }).catch(err => {
         this.tasks=[];
         this.$notification['error']({
           message: '获取任务清单失败:',
-          description: err
+          description: err.message
         })
         this.listLoading = false;
       });
@@ -331,44 +337,31 @@ export default {
       let data = new FormData();
       data.append('file', fileList[0]);
       let fileName = fileList[0].name;
-      uploadTaskList(mode, data).then(affectedRows => {
-        if (mode === 'replace') {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：任务清单替换失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：任务清单替换成功！",
-              description: "上传了 " + affectedRows + " 条数据！"
-            })
-          }
+      uploadTasks(mode, data).then(res => {
+        if (res.result === 'SUCCESS') {
+          this.$notification['success']({
+            message: `${fileName}：任务清单${mode === 'replace' ? '替换' : '更新'}成功！`,
+            description: `${mode === 'replace' ? '上传了' : '新增了'} ${res.data.length} 条数据！`
+          })
+          this.tasks = mode === 'replace' ? res.data : this.tasks.concat(res.data);
         } else {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：任务清单更新失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：任务清单上传成功！",
-              description: "新增了 " + affectedRows + " 条数据！"
-            })
-          }
+          this.$notification['error']({
+            message: `${fileName}：任务清单${mode === 'replace' ? '替换' : '更新'}失败！`
+          })
         }
         this.uploading = false;
         this.uploadModalVisible = false;
-        this.getAllTasks();
       }).catch(err => {
-        this.$notification['err']({
-          message: fileName + "文件上传失败！",
-          description: err
-        });
+        this.$notification['error']({
+          message: `${fileName}：任务清单${mode === 'replace' ? '替换' : '更新'}失败！`,
+          description: err.message
+        })
         this.uploading = false;
       });
     },
-    doTaskDelete(task){
+    doDelete(task){
       deleteTask(task.task_no).then(res => {
-        if (res > 0) {
+        if (res.result === 'SUCCESS') {
           this.$notification['success']({
             message: "任务 " + task.task_no + " 已成功删除！"
           })
@@ -381,7 +374,7 @@ export default {
       }).catch(err => {
         this.$notification['error']({
           message: "任务 " + task.task_no + " 未找到，删除失败！",
-          description: err
+          description: err.message
         })
         console.log(err);
       });

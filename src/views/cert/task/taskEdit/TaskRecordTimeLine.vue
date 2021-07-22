@@ -7,7 +7,7 @@
     mode='edit'
     :preview-after-action='false'
     v-model='newRecord.content'
-    @save='insertRecord'
+    @save='doInsert'
     @cancel='resetNewRecEditor'
     v-if='newRecEditorVisible'
   >
@@ -30,14 +30,14 @@
         mode='preview'
         action-style='icon'
         v-model='record.content'
-        @save='updateRecord(record)'
+        @save='doUpdate(record)'
       >
         <template v-slot:title>
           <task-stat-tag :task-stat='record.task_stat'/>
           <span>{{record.record_time | dayjs}}</span>
         </template>
         <template v-slot:extra-of-preview>
-          <a-popconfirm title="确认删除记录？" ok-text="确认" cancel-text="取消" @confirm="deleteRecord(record.record_no)">
+          <a-popconfirm title="确认删除记录？" ok-text="确认" cancel-text="取消" @confirm="doDelete(record.record_no)">
             <a-button type="danger">删除</a-button>
           </a-popconfirm>
         </template>
@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import {getTaskRecord, insertTaskRecord, updateTaskRecord, deleteTaskRecord} from '@/api/cert'
+import {getRecordsOfTask, insertRecord, updateRecord, deleteRecord} from '@/api/cert'
 import MarkDownEditor from '@/components/Editor/MarkDownEditor'
 import TaskStatTag from '@/views/cert/task/TaskStatTag'
 import TaskStatSelector from '@/views/cert/task/TaskStatSelector'
@@ -74,12 +74,19 @@ export default {
   },
   props: ['taskNo', 'curStat'],
   mounted() {
-    getTaskRecord(this.taskNo).then(records => {
-      this.taskRecords = records;
+    getRecordsOfTask(this.taskNo).then(res => {
+      if (res.result === 'SUCCESS') {
+        this.taskRecords = res.data;
+      } else {
+        this.$notification['error']({
+          message: '获取任务记录失败:',
+          description: res.msg
+        })
+      }
     }).catch(err => {
       this.$notification['error']({
         message: '获取任务记录失败:',
-        description: err
+        description: err.message
       })
     })
   },
@@ -92,11 +99,10 @@ export default {
     showNewRecEditor() {
       this.newRecEditorVisible = true;
     },
-    updateRecord(record) {
+    doUpdate(record) {
       // 解决思路是吧editor的content作为v-model传出来就行了
       console.log('更新记录：', record);
-      // todo 更新记录，先检查下传过来的record对不对
-      updateTaskRecord(record).then(res => {
+      updateRecord(record).then(res => {
         if (res === 'SUCCESS') {
           this.$notification['success']({
             message: '任务记录已保存',
@@ -104,7 +110,7 @@ export default {
         } else {
           this.$notification['error']({
             message: '任务记录保存失败:',
-            description: err
+            description: res.msg
           })
         }
       }).catch(err => {
@@ -115,7 +121,7 @@ export default {
         })
       });
     },
-    insertRecord() {
+    doInsert() {
       let record = {
         record_no: null,
         task_no: this.taskNo,
@@ -146,17 +152,23 @@ export default {
         });
         return;
       }
+      insertRecord(record).then(res => {
+        if (res.result === 'SUCCESS') {
+          this.taskRecords.unshift(res.data);
+          this.$notification['success']({
+            message: '上传任务记录成功'
+          })
+        } else {
+          this.$notification['error']({
+            message: '上传任务记录失败:',
+            description: res.msg
+          })
+        }
 
-      insertTaskRecord(record).then(res => {
-        console.log('新增记录：', {res});
-        this.taskRecords.unshift(res);
-        this.$notification['success']({
-          message: '上传任务记录成功'
-        })
       }).catch(err => {
         this.$notification['error']({
           message: '上传任务记录失败:',
-          description: err
+          description: err.message
         })
       })
       this.resetNewRecEditor();
@@ -166,17 +178,18 @@ export default {
       this.newRecord.content = '';
       this.newRecord.task_stat = this.curStat;
     },
-    deleteRecord(recNo){
+    doDelete(recNo){
       console.log('删除记录：', {recNo});
-      deleteTaskRecord(recNo).then(res => {
-        if (eval(res).deletedCount > 0) {
+      deleteRecord(recNo).then(res => {
+        if (res.result === 'SUCCESS') {
           this.taskRecords = this.taskRecords.filter(record => record.record_no !== recNo);
           this.$notification['success']({
             message: '删除任务记录成功'
           })
         } else {
           this.$notification['error']({
-            message: '未找到对应记录'
+            message: '未找到对应记录',
+            description: res.msg
           })
         }
       }).catch(err => {

@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { getAllRegions, insertRegion, updateRegion, deleteRegion, uploadRegionList } from '@/api/cert'
+import { getAllRegions, insertRegion, updateRegion, deleteRegion, uploadRegions } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
 import { momentToString } from 'ant-design-vue/lib/_util/moment-util'
 import moment from 'moment'
@@ -168,51 +168,39 @@ export default {
       let data = new FormData();
       data.append('file', fileList[0]);
       let fileName = fileList[0].name;
-      uploadRegionList(mode, data).then(affectedRows => {
-        if (mode === 'replace') {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：认证区域清单替换失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：认证区域清单替换成功！",
-              description: "上传了 " + affectedRows + " 条数据！"
-            })
-          }
+      uploadRegions(mode, data).then(res => {
+        if (res.result === 'SUCCESS') {
+          this.$notification['success']({
+            message: `${fileName}：认证区域清单${mode === 'replace' ? '替换' : '更新'}成功！`,
+            description: `${mode === 'replace' ? '上传了' : '新增了'} ${res.data.length} 条数据！`
+          })
+          this.regions = mode === 'replace' ? res.data : this.regions.concat(res.data);
         } else {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：认证区域清单更新失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：认证区域清单上传成功！",
-              description: "新增了 " + affectedRows + " 条数据！"
-            })
-          }
+          this.$notification['error']({
+            message: `${fileName}：认证区域清单${mode === 'replace' ? '替换' : '更新'}失败！`
+          })
         }
         this.uploading = false;
         this.uploadModalVisible = false;
-        this.reloadRegionList();
       }).catch(err => {
         this.$notification['error']({
-          message: fileName + "文件上传失败！",
+          message: `${fileName}：认证区域清单${mode === 'replace' ? '替换' : '更新'}失败！`,
           description: err.message
-        });
+        })
         this.uploading = false;
       });
     },
     doDelete(record) {
       deleteRegion(record).then(res => {
-        if (res.deletedCount > 0) {
-          this.regions.splice(this.regions.findIndex(region => region.id === record.id), 1);
+        if (res.result === 'SUCCESS') {
+          this.regions.filter(region => region.id === record.id);
           this.$notification['success']({
             message: `认证区域 ${record.region_chs} 已删除！`,
           });
         } else {
           this.$notification['error']({
-            message: `认证区域 ${record.region_chs} 删除改失败！`
+            message: `认证区域 ${record.region_chs} 删除改失败！`,
+            description: res.msg
           });
         }
       }).catch(err => {
@@ -232,8 +220,9 @@ export default {
     },
     saveNewRegion(record) {
       record.id = undefined;
-      insertRegion(record).then(region => {
-        if (region !== null) {
+      insertRegion(record).then(res => {
+        if (res.result === 'SUCCESS') {
+          let region = res.data;
           this.$notification['success']({
             message: `成功添加认证区域：${record.region_chs}`,
           });
@@ -241,10 +230,11 @@ export default {
           record._originalData = undefined
           record.editting = false;
         } else {
+          record.id = 'new-region' + momentToString(moment());
           this.$notification['error']({
-            message: '添加认证区域失败！'
-          });
-          this.cancelEdit(record);
+            message: '添加认证区域失败！',
+            description: res.msg
+          })
         }
       }).catch(err => {
         this.$notification['error']({
@@ -255,8 +245,8 @@ export default {
       })
     },
     saveChangedRegion(record) {
-      updateRegion(record).then(region => {
-        if (region !== null) {
+      updateRegion(record).then(res => {
+        if (res.result === 'SUCCESS') {
           this.$notification['success']({
             message: `认证区域 ${record.region_chs} 的修改已保存！`,
           });
@@ -264,7 +254,8 @@ export default {
           record.editting = false;
         } else {
           this.$notification['error']({
-            message: `认证区域 ${record.region_chs} 修改失败！`
+            message: `认证区域 ${record.region_chs} 修改失败！`,
+            description: res.msg
           });
           this.cancelEdit(record);
         }
