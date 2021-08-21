@@ -35,6 +35,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.quality.delivery', keepAlive: true }
           },
           {
+            path: '/quality/maintainance',
+            name: 'maintainance',
+            component: () => import('@/views/quality/maintainance/MaintainanceKanban'),
+            meta: { title: 'menu.quality.maintainance', keepAlive: true }
+          },
+          {
             path: '/quality/issue',
             name: 'Issue',
             component: () => import('@/views/quality/issue/IssueKanban'),

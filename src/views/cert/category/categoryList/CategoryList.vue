@@ -217,30 +217,19 @@ export default {
       let data = new FormData();
       data.append('file', fileList[0]);
       let fileName = fileList[0].name;
-      uploadCategories(mode, data).then(affectedRows => {
-        if (mode === 'replace') {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：认证类型清单替换失败！"
-            })
-          } else {
+      uploadCategories(mode, data).then(res => {
+          if (res.result === 'SUCCESS') {
             this.$notification['success']({
-              message: fileName + "：认证类型清单替换成功！",
-              description: "上传了 " + affectedRows + " 条数据！"
+              message: `${fileName}：认证类型清单${mode === 'replace' ? '替换' : '更新'}成功！`,
+              description: `${mode === 'replace' ? '上传了' : '新增了'} ${res.data.length} 条数据！`
+            })
+            this.tasks = mode === 'replace' ? res.data : this.tasks.concat(res.data);
+          } else {
+            this.$notification['error']({
+              message: `${fileName}：认证类型清单${mode === 'replace' ? '替换' : '更新'}失败！`
             })
           }
-        } else {
-          if (affectedRows === -1) {
-            this.$notification['err']({
-              message: fileName + "：认证类型清单更新失败！"
-            })
-          } else {
-            this.$notification['success']({
-              message: fileName + "：认证类型清单上传成功！",
-              description: "新增了 " + affectedRows + " 条数据！"
-            })
-          }
-        }
+        this.uploadModalVisible = false;
         this.uploading = false;
         this.getAllCategories();
       }).catch(err => {

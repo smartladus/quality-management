@@ -26,5 +26,6 @@ export default {
   title: '这是个啥子系统',
   pwa: false,
   iconfontUrl: '',
+  multiTab: true,
   production: process.env.NODE_ENV === 'production' && process.env.VUE_APP_PREVIEW !== 'true'
 }

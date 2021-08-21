@@ -193,7 +193,7 @@ export default {
     doDelete(record) {
       deleteRegion(record).then(res => {
         if (res.result === 'SUCCESS') {
-          this.regions.filter(region => region.id === record.id);
+          this.regions = this.regions.filter(region => region.id !== record.id);
           this.$notification['success']({
             message: `认证区域 ${record.region_chs} 已删除！`,
           });

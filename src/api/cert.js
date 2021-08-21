@@ -3,19 +3,16 @@ import request from '@/utils/request'
 const certApi = {
   UploadRegions: 'http://localhost:8899/api/cert/upload/regions',
   UploadTasks: 'http://localhost:8899/api/cert/upload/tasks',
+  UploadCategories: 'http://localhost:8899/api/cert/upload/categories',
   Regions: 'http://localhost:8899/api/cert/regions',
   Tasks: 'http://localhost:8899/api/cert/tasks',
   TaskRecords: 'http://localhost:8899/api/cert/records',
+  Categories: 'http://localhost:8899/api/cert/categories',
 
   TaskNoList: 'http://localhost:8899/api/cert/task/no/get/',
-  GetCertTask: 'http://localhost:8899/api/cert/task/get/',
-  UpdateCertTask: 'http://localhost:8899/api/cert/task/update',
   TaskListTemplateDownload: 'http://localhost:8899/api/cert/task/download/template',
-  DeleteTask: 'http://localhost:8899/api/cert/task/delete/',
-  InsertTask: 'http://localhost:8899/api/cert/task/insert/',
   CertCategoryOfRegion: 'http://localhost:8899/api/cert/category/get',
   CategoryList: 'http://localhost:8899/api/cert/category/get/all',
-  UploadCategories: 'http://localhost:8899/api/cert/category/upload',
 
 
 }
@@ -39,6 +36,18 @@ export function uploadRegions(mode, data) {
 export function uploadTasks(mode, data) {
   return request({
     url: certApi.UploadTasks,
+    method: 'post',
+    params: {
+      mode: mode
+    },
+    contentType: 'multipart/form-data',
+    data: data
+  })
+}
+
+export function uploadCategories(mode, data) {
+  return request({
+    url: certApi.UploadCategories,
     method: 'post',
     params: {
       mode: mode
@@ -196,18 +205,6 @@ export function getCategories() {
   return request({
     url: certApi.CategoryList,
     method: 'get'
-  })
-}
-
-export function uploadCategories(mode, data) {
-  return request({
-    url: certApi.UploadCategories,
-    method: 'post',
-    params: {
-      mode: mode
-    },
-    contentType: 'multipart/form-data',
-    data: data
   })
 }
 

@@ -140,7 +140,7 @@ const columns = [
     title: '任务编号',
     dataIndex: 'task_no',
     key: 'task_no',
-    width: 210,
+    width: 220,
     fixed: 'left',
     align: 'center',
   },

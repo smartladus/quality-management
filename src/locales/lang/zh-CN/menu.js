@@ -43,8 +43,8 @@ export default {
   'menu.cert.certificate': '证书管理',
   'menu.quality': '质量管理',
   'menu.quality.delivery': '出货记录',
+  'menu.quality.maintainance': '报修记录',
   'menu.quality.issue': '质量问题',
   'menu.quality.issue.list': '质量问题清单',
   'menu.quality.issue.edit': '质量问题编辑',
-
 }

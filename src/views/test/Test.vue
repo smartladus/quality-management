@@ -3,12 +3,14 @@
   <region-selector v-model='region'/>
   <region-select v-model='region'/>
   <a-input v-model='region'/>
+  <quill-editor></quill-editor>
 </div>
 </template>
 
 <script>
 import RegionSelector from '@/views/cert/category/RegionSelector'
 import RegionSelect from '@/views/cert/category/RegionSelect'
+import QuillEditor from '@/components/Editor/QuillEditor'
 export default {
   name: 'Test',
   data () {
@@ -23,7 +25,8 @@ export default {
   },
   components: {
     RegionSelector,
-    RegionSelect
+    RegionSelect,
+    QuillEditor
   }
 }
 </script>

@@ -8,6 +8,7 @@
     :handleCollapse="handleCollapse"
     :i18nRender="i18nRender"
     v-bind="settings"
+    :footerRender='false'
   >
     <template v-slot:menuHeaderRender>
       <div>
