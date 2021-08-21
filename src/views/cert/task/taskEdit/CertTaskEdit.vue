@@ -211,9 +211,9 @@ export default {
   watch: {
     curRegion(val, oldVal) {
       console.log(`curRegion changed from ${oldVal} to ${val}`);
-      getCategoriesByRegion(val).then(categories => {
-        console.log(`categories: ${categories}`)
-        this.certCategories = categories;
+      getCategoriesByRegion(val).then(res => {
+        console.log(`categories: ${res}`)
+        this.certCategories = res.data;
       })
     },
   },

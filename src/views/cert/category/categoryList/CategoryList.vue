@@ -8,7 +8,7 @@
     <a-button
       icon='sync'
       :disabled="listLoading"
-      @click="getAllCategories"
+      @click="reloadCategories"
       :loading="listLoading"
     >
       刷新
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { getCategories, uploadCategories } from '@/api/cert'
+import { getAllCategories, uploadCategories } from '@/api/cert'
 import UploadModal from '@/views/common/UploadModal'
 import CategoryEditModal from '@/views/cert/category/categoryList/CategoryEditModal'
 
@@ -188,16 +188,16 @@ export default {
     }
   },
   mounted() {
-    this.getAllCategories();
+    this.reloadCategories();
     window.onresize = function () {
       this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
     }
   },
   methods: {
-    getAllCategories() {
+    reloadCategories() {
       this.listLoading = true;
-      getCategories().then(res => {
-        this.categories = res;
+      getAllCategories().then(res => {
+        this.categories = res.data;
         this.listLoading = false;
         console.log(res)
       }).catch(err => {
@@ -231,7 +231,7 @@ export default {
           }
         this.uploadModalVisible = false;
         this.uploading = false;
-        this.getAllCategories();
+        this.reloadCategories();
       }).catch(err => {
         this.$notification['error']({
           message: fileName + "文件上传失败！",

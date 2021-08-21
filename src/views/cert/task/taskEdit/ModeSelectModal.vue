@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import {getCertTaskNoList} from '@/api/cert'
+import {getAllTasks} from '@/api/cert'
 
 export default {
   name: 'ModeSelectModal',
@@ -75,6 +75,7 @@ export default {
     return {
       labelCol: { span: 4 },
       wrapperCol: { span: 16 },
+      taskNoList:[],
       dataSource: [],
       form: {
         mode: 'new',
@@ -90,13 +91,18 @@ export default {
       }
     }
   },
+  mounted() {
+    getAllTasks().then(res => {
+      this.taskNoList = res.data.map(task => task.task_no)
+      console.log(res.data)
+      console.log(this.taskNoList)
+    })
+  },
   props: ['visible'],
   methods: {
     onSearch(searchText) {
-      // 动态获取模糊查询结果
-      getCertTaskNoList(searchText).then(res => {
-        this.dataSource = res;
-      })
+      // 动态获取模糊查询结果，不区分大小写
+      this.dataSource = this.taskNoList.filter(taskNo => taskNo.toLowerCase().includes(searchText.toLowerCase()));
     },
     onSelect(value) {
       console.log('onSelect', value);

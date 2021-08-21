@@ -9,12 +9,7 @@ const certApi = {
   TaskRecords: 'http://localhost:8899/api/cert/records',
   Categories: 'http://localhost:8899/api/cert/categories',
 
-  TaskNoList: 'http://localhost:8899/api/cert/task/no/get/',
   TaskListTemplateDownload: 'http://localhost:8899/api/cert/task/download/template',
-  CertCategoryOfRegion: 'http://localhost:8899/api/cert/category/get',
-  CategoryList: 'http://localhost:8899/api/cert/category/get/all',
-
-
 }
 /**
  * ====================================================================================
@@ -174,24 +169,21 @@ export function updateRecord(record) {
   })
 }
 
-
-
-
-//=========================================
-
-
-export function getCertTaskNoList(taskNoSeg) {
+/**
+ * ====================================================================================
+ * Category Api
+ * ====================================================================================
+ */
+export function getAllCategories() {
   return request({
-    url: certApi.TaskNoList + taskNoSeg,
+    url: certApi.Categories,
     method: 'get'
   })
 }
 
-export const templateDownloadUrl = certApi.TaskListTemplateDownload;
-
 export function getCategoriesByRegion(region) {
   return request({
-    url: certApi.CertCategoryOfRegion,
+    url: certApi.Categories,
     method: 'get',
     params: {
       region: region
@@ -199,15 +191,12 @@ export function getCategoriesByRegion(region) {
   })
 }
 
+//=========================================
+/**
+ * ====================================================================================
+ * Download URL
+ * ====================================================================================
+ */
 
-
-export function getCategories() {
-  return request({
-    url: certApi.CategoryList,
-    method: 'get'
-  })
-}
-
-
-
+export const templateDownloadUrl = certApi.TaskListTemplateDownload;
 
