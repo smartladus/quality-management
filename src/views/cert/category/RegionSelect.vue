@@ -28,8 +28,13 @@
               ref='x'
               placeholder='2~3位英文字母'
               @click="e=>e.target.focus()"
+              @change='onChange'
             />
           </template>
+        </div>
+        <div>
+          <a-button type='primary'>确认</a-button>
+          <a-button>取消</a-button>
         </div>
       </a-menu-item>
     </a-menu>
@@ -108,6 +113,9 @@ export default {
     },
     visibleChange(visible) {
       this.adding = false;
+    },
+    onChange(value) {
+      console.log(value)
     }
   }
 }

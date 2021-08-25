@@ -13,9 +13,11 @@
   "dependencies": {
     "@ant-design-vue/pro-layout": "^1.0.8",
     "@antv/data-set": "^0.10.2",
-    "ant-design-vue": "^1.7.5",
+    "@antv/g2plot": "^2.3.31",
+    "ant-design-vue": "^1.7.7",
     "axios": "^0.19.0",
     "core-js": "^3.1.2",
+    "echarts": "^5.1.2",
     "enquire.js": "^2.1.6",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",

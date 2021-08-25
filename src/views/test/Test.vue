@@ -1,16 +1,13 @@
 <template>
 <div>
-  <region-selector v-model='region'/>
-  <region-select v-model='region'/>
-  <a-input v-model='region'/>
-  <quill-editor></quill-editor>
+  <defect-age/>
 </div>
 </template>
 
 <script>
-import RegionSelector from '@/views/cert/category/RegionSelector'
-import RegionSelect from '@/views/cert/category/RegionSelect'
-import QuillEditor from '@/components/Editor/QuillEditor'
+import Demo from '@/views/test/echarts/Demo'
+import DefectAge from '@/views/test/echarts/DefectAge'
+
 export default {
   name: 'Test',
   data () {
@@ -19,14 +16,11 @@ export default {
     }
   },
   methods: {
-    onClick() {
-      console.log('div mousedown')
-    }
+
   },
   components: {
-    RegionSelector,
-    RegionSelect,
-    QuillEditor
+    Demo,
+    DefectAge
   }
 }
 </script>

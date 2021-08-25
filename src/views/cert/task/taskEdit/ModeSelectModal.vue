@@ -93,9 +93,7 @@ export default {
   },
   mounted() {
     getAllTasks().then(res => {
-      this.taskNoList = res.data.map(task => task.task_no)
-      console.log(res.data)
-      console.log(this.taskNoList)
+      this.taskNoList = res.data.map(task => task.task_no);
     })
   },
   props: ['visible'],

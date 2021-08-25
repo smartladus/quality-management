@@ -27,6 +27,7 @@
         <template v-else>
           <a-input
             placeholder='2~3位英文字母'
+            @mousedown='e => e.preventDefault()'
             @click="e=>e.target.focus()"
           />
         </template>
