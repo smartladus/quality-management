@@ -8,15 +8,15 @@
       @change="onChange"
     />
   </template>
-  <div id='chart1' style="height:400px"></div>
-  <a-divider/>
-  <div>{{columnPlot === undefined ? 'loading' : columnPlot.options}}</div>
+  <div :id='id' style="height:400px"></div>
 </a-card>
 </template>
 
 <script>
 import { Bar, G2 } from '@antv/g2plot';
 import { getDefectAge } from '@/api/dashboard'
+import moment from 'moment'
+import md5 from 'md5'
 
 G2.registerInteraction('element-link', {
   start: [{ trigger: 'interval:mouseenter', action: 'element-link-by-color:link' }],
@@ -32,7 +32,11 @@ const commonOption = {
     colors10: ['#ED6567','#FF8F82','#FFC757','#009AD8','#45BC7D']
   },
   animation: {},
-  tooltip: false,
+  tooltip: true,
+  legend: {
+    layout: 'horizontal',
+    position: 'bottom'
+  },
   interactions: [{ type: 'element-highlight-by-color' }, { type: 'element-link' }],
 }
 const valueOption = {
@@ -71,10 +75,11 @@ export default {
   data(){
     return {
       columnPlot: undefined,
+      id: `chart_${md5(moment() * Math.random())}`,
     }
   },
   mounted() {
-    this.columnPlot = new Bar('chart1', {
+    this.columnPlot = new Bar(this.id, {
       ...commonOption, ...percentOption
     })
     getDefectAge().then(res => {

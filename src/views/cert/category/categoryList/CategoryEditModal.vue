@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getRegionList } from '@/api/cert'
+import { getAllRegions } from '@/api/cert'
 
 export default {
   name: 'CategoryEditModal',
@@ -65,7 +65,7 @@ export default {
     },
   },
   mounted() {
-    getRegionList().then(res => {
+    getAllRegions().then(res => {
       this.regions = res;
       // console.log('认证区域列表已获取：', res)
     }).catch(err => {
