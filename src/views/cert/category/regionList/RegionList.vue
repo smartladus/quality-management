@@ -146,10 +146,10 @@ export default {
     reloadRegionList() {
       this.listLoading = true;
       getAllRegions().then(res => {
-        for(let region of res) {
+        for(let region of res.data) {
           region.editting = false;
         }
-        this.regions = res;
+        this.regions = res.data;
         console.log(this.regions)
         this.listLoading = false;
       }).catch(err => {

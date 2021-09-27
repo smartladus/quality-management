@@ -87,6 +87,40 @@ const cumulativeDefectTrend = (options) => {
   }).result
 }
 
+const productDefectTrendData = [
+  {'date': '2019-10', 'repairment': 0,'defectRate': 0.0000, 'shipment': 66},
+  {'date': '2019-11', 'repairment': 0,'defectRate': 0.0000, 'shipment': 114},
+  {'date': '2019-12', 'repairment': 0,'defectRate': 0.0000, 'shipment': 283},
+  {'date': '2020-01', 'repairment': 2,'defectRate': 0.0000, 'shipment': 44},
+  {'date': '2020-02', 'repairment': 0,'defectRate': 0.0000, 'shipment': 0},
+  {'date': '2020-03', 'repairment': 0,'defectRate': 0.0000, 'shipment': 27},
+  {'date': '2020-04', 'repairment': 1,'defectRate': 0.0000, 'shipment': 34},
+  {'date': '2020-05', 'repairment': 3,'defectRate': 0.0000, 'shipment': 26},
+  {'date': '2020-06', 'repairment': 3,'defectRate': 0.0385, 'shipment': 54},
+  {'date': '2020-07', 'repairment': 0,'defectRate': 0.0000, 'shipment': 50},
+  {'date': '2020-08', 'repairment': 0,'defectRate': 0.0000, 'shipment': 73},
+  {'date': '2020-09', 'repairment': 0,'defectRate': 0.0000, 'shipment': 66},
+  {'date': '2020-10', 'repairment': 1,'defectRate': 0.0000, 'shipment': 72},
+  {'date': '2020-11', 'repairment': 0,'defectRate': 0.0465, 'shipment': 45},
+  {'date': '2020-12', 'repairment': 1,'defectRate': 0.0226, 'shipment': 136},
+  {'date': '2021-01', 'repairment': 2,'defectRate': 0.0519, 'shipment': 81},
+  {'date': '2021-02', 'repairment': 2,'defectRate': 0.0000, 'shipment': 4},
+  {'date': '2021-03', 'repairment': 1,'defectRate': 0.0185, 'shipment': 55},
+  {'date': '2021-04', 'repairment': 2,'defectRate': 0.0208, 'shipment': 49},
+  {'date': '2021-05', 'repairment': 3,'defectRate': 0.1000, 'shipment': 44},
+  {'date': '2021-06', 'repairment': 6,'defectRate': 0.0000, 'shipment': 59},
+  {'date': '2021-07', 'repairment': 2,'defectRate': 0.0000, 'shipment': 4},
+]
+
+const productDefectTrend = () => {
+  return builder({
+    'result': 'SUCCESS',
+    'msg': 'mock data of product defect rate',
+    'data': productDefectTrendData,
+  }).result
+}
+
 Mock.mock(/\/api\/charts\/defectage/, 'get', defectAge)
 Mock.mock(/\/api\/charts\/cumulativedefectrate/, 'get', cumulativeDefectRate)
 Mock.mock(/\/api\/charts\/cumulativedefecttrend/, 'get', cumulativeDefectTrend)
+Mock.mock(/\/api\/charts\/productdefecttrend/, 'get', productDefectTrend)

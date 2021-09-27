@@ -4,6 +4,7 @@ const chartsApi = {
   DefectAge: 'http://localhost:8899/api/charts/defectage',
   CumulativeDefectRate: 'http://localhost:8899/api/charts/cumulativedefectrate',
   CumulativeDefectTrend: 'http://localhost:8899/api/charts/cumulativedefecttrend',
+  ProductDefectTrend: 'http://localhost:8899/api/charts/productdefecttrend',
 }
 
 export function getDefectAge() {
@@ -22,7 +23,14 @@ export function getCumulativeDefectRate() {
 
 export function getCumulativeDefectTrend() {
   return request({
-    url: chartsApi.CumulativeDefectTrend + '?by=xx',
+    url: chartsApi.CumulativeDefectTrend,
+    method: 'get',
+  })
+}
+
+export function getProductDefectTrend() {
+  return request({
+    url: chartsApi.ProductDefectTrend,
     method: 'get',
   })
 }

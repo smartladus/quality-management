@@ -99,6 +99,12 @@ export function getAllTasks() {
     method: 'get'
   })
 }
+export function getAllTaskNos() {
+  return request({
+    url: `${certApi.Tasks}/tasknos`,
+    method: 'get'
+  })
+}
 
 export function getTask(taskNo) {
   return request({

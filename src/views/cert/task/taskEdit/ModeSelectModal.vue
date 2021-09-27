@@ -23,7 +23,6 @@
       label='任务编号'
       prop='taskNo'
       :required='form.mode !== "new"'
-
       has-feedback
     >
       <a-auto-complete
@@ -49,7 +48,7 @@
 </template>
 
 <script>
-import {getAllTasks} from '@/api/cert'
+import {getAllTaskNos} from '@/api/cert'
 
 export default {
   name: 'ModeSelectModal',
@@ -92,8 +91,8 @@ export default {
     }
   },
   mounted() {
-    getAllTasks().then(res => {
-      this.taskNoList = res.data.map(task => task.task_no);
+    getAllTaskNos().then(res => {
+      this.taskNoList = res.data;
     })
   },
   props: ['visible'],

@@ -6,6 +6,7 @@
   <a-divider/>
   <cumulative-defect-trend/>
   <a-divider/>
+  <product-defect-trend/>
 </div>
 </template>
 
@@ -14,6 +15,7 @@ import Demo from '@/views/test/echarts/CumulativeDefectRate'
 import DefectAge from '@/views/test/echarts/DefectAge'
 import CumulativeDefectRate from '@/views/test/echarts/CumulativeDefectRate'
 import CumulativeDefectTrend from '@/views/test/echarts/CumulativeDefectTrend'
+import ProductDefectTrend from '@/views/test/echarts/ProductDefectTrend'
 
 export default {
   name: 'Test',
@@ -30,6 +32,7 @@ export default {
     DefectAge,
     CumulativeDefectRate,
     CumulativeDefectTrend,
+    ProductDefectTrend
   }
 }
 </script>
