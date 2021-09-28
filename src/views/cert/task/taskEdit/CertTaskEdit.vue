@@ -197,7 +197,7 @@ export default {
   },
   mounted() {
     getAllRegions().then(res => {
-      this.regions = res;
+      this.regions = res.data;
       // console.log('认证区域列表已获取：', res)
     }).catch(err => {
       this.$notification['error']({

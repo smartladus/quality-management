@@ -99,9 +99,9 @@ export function getAllTasks() {
     method: 'get'
   })
 }
-export function getAllTaskNos() {
+export function getFieldOfAllTasks(fieldName) {
   return request({
-    url: `${certApi.Tasks}/tasknos`,
+    url: `${certApi.Tasks}/fields/${fieldName}`,
     method: 'get'
   })
 }

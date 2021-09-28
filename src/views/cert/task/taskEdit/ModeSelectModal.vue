@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import {getAllTaskNos} from '@/api/cert'
+import {getFieldOfAllTasks} from '@/api/cert'
 
 export default {
   name: 'ModeSelectModal',
@@ -91,7 +91,7 @@ export default {
     }
   },
   mounted() {
-    getAllTaskNos().then(res => {
+    getFieldOfAllTasks("task_no").then(res => {
       this.taskNoList = res.data;
     })
   },
