@@ -30,3 +30,11 @@ Vue.filter('replaceDivider', function (dataStr) {
     return '-';
   }
 })
+
+Vue.filter('percent', function (value) {
+  if (!value) {
+    return 'N/A'
+  } else {
+    return `${Math.round(value*1000)/10}%`;
+  }
+})

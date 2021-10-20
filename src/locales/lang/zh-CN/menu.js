@@ -42,6 +42,7 @@ export default {
   'menu.cert.category': '认证类型管理',
   'menu.cert.certificate': '证书管理',
   'menu.quality': '质量管理',
+  'menu.quality.supplier': '供应商管理',
   'menu.quality.delivery': '出货记录',
   'menu.quality.maintainance': '报修记录',
   'menu.quality.issue': '质量问题',

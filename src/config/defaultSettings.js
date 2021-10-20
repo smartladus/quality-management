@@ -23,7 +23,7 @@ export default {
   menu: {
     locale: true
   },
-  title: '这是个啥子系统',
+  title: '质量和认证',
   pwa: false,
   iconfontUrl: '',
   multiTab: true,

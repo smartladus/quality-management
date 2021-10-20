@@ -303,14 +303,6 @@ export default {
 </script>
 
 <style scoped>
-.task-action {
-  font-size: 16px;
-  cursor: pointer;
-  color: #1890ff;
-}
-.task-action-delete {
-  color: #ED6567;
-}
 .action-bar{
   position: absolute;
   right: -8px;

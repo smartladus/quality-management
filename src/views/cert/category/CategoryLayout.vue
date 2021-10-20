@@ -7,11 +7,9 @@
   <template slot='title'><span/></template>
   <region-list
     v-if='tabActiveKey === "1"'
-
   />
   <category-list
     v-if='tabActiveKey === "2"'
-
   />
 </page-header-wrapper>
 </template>

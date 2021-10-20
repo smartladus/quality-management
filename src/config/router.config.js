@@ -29,6 +29,12 @@ export const asyncRouterMap = [
         meta: { title: 'menu.quality', keepAlive: true, icon: 'safety-certificate' },
         children: [
           {
+            path: '/quality/suppliers',
+            name: 'suppliers',
+            component: () => import('@/views/quality/supplier/SupplierMgmt'),
+            meta: { title: 'menu.quality.supplier', keepAlive: true }
+          },
+          {
             path: '/quality/delivery',
             name: 'delivery',
             component: () => import('@/views/quality/delivery/ProdDelivery'),

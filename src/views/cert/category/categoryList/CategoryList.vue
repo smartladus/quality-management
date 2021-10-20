@@ -47,7 +47,7 @@
       <a-popconfirm title="确认删除认证类型？" ok-text="确认" cancel-text="取消" @confirm="doDelete(record)">
         <a-icon class="task-action task-action-delete" type="delete"/>
       </a-popconfirm>
-      </span>
+    </span>
   </a-table>
 
   <category-edit-modal
@@ -223,7 +223,7 @@ export default {
               message: `${fileName}：认证类型清单${mode === 'replace' ? '替换' : '更新'}成功！`,
               description: `${mode === 'replace' ? '上传了' : '新增了'} ${res.data.length} 条数据！`
             })
-            this.tasks = mode === 'replace' ? res.data : this.tasks.concat(res.data);
+            this.tasks = (mode === 'replace' || this.tasks === undefined) ? res.data : this.tasks.concat(res.data);
           } else {
             this.$notification['error']({
               message: `${fileName}：认证类型清单${mode === 'replace' ? '替换' : '更新'}失败！`
