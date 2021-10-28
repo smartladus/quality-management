@@ -5,9 +5,7 @@
     @upload='doUpload'
     @reloadList='reloadSuppliers'
     @createItem='openEditModal("new")'
-  >
-
-  </sub-tab-list-page>
+  />
   <a-table
     :columns='columns'
     :data-source='suppliers'
@@ -51,12 +49,18 @@
       </a-popconfirm>
     </span>
   </a-table>
-
+  <supplier-edit-modal
+    :title='editModal.title'
+    :ori-form='editModal.oriForm'
+    :mode='editModal.mode'
+    v-model='editModal.visible'
+  />
 </div>
 </template>
 
 <script>
 import SubTabListPage from '@/components/SubTabPage/SubTabListPage'
+import SupplierEditModal from '@/views/quality/supplier/SupplierEditModal'
 import { uploadSuppliers, getAllSuppliers } from '@/api/supplier'
 
 export default {
@@ -125,6 +129,12 @@ export default {
         tipOfAdd: '已选择增量上传，仅增加供应商简称和全称都不同的行。',
         uploading: false
       },
+      editModal: {
+        title: '',
+        visible: false,
+        oriForm: undefined,
+        mode: 'new',
+      },
       columns,
       listLoading: false,
       suppliers: [],
@@ -155,11 +165,10 @@ export default {
       });
     },
     openEditModal(mode, supplier) {
-      if(mode === 'new') {
-        alert('新建供应商')
-      } else {
-        alert('编辑供应商：' + supplier.abbr)
-      }
+      this.editModal.title = mode === 'new' ? '新建供应商' : '编辑供应商';
+      this.editModal.oriForm = mode === 'new' ? undefined: supplier;
+      this.editModal.visible = true;
+      this.editModal.mode = mode;
     },
     doUpload(mode, fileList) {
       this.uploadModalInfo.uploading = true;
@@ -191,7 +200,8 @@ export default {
     }
   },
   components: {
-    SubTabListPage
+    SubTabListPage,
+    SupplierEditModal
   }
 }
 </script>
