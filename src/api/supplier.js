@@ -23,3 +23,10 @@ export function getAllSuppliers() {
     method: 'get'
   })
 }
+
+export function getFieldOfAllSuppliers(fieldName) {
+  return request({
+    url: `${supplierApi.Suppliers}/fields/${fieldName}`,
+    method: 'get'
+  })
+}

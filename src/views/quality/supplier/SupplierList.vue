@@ -53,6 +53,7 @@
     :title='editModal.title'
     :ori-form='editModal.oriForm'
     :mode='editModal.mode'
+    :suppliers='suppliers'
     v-model='editModal.visible'
   />
 </div>

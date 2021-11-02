@@ -16,7 +16,7 @@
     :wrapper-col="wrapperCol"
     class='modal-body'
   >
-    <a-form-model-item label="供应商简称" required prop='abbr'>
+    <a-form-model-item label="供应商简称" required has-feedback prop='abbr'>
       <a-input v-model="form.abbr" placeholder="请输入供应商简称，不超过10个字符，不可重复" />
     </a-form-model-item>
     <a-form-model-item label="供应商中文全称" required prop='fullname_zh'>
@@ -106,16 +106,39 @@ const newSupplier = {
   dr_thr_3y: undefined,
   main_products: []
 };
+
 export default {
   name: 'SupplierEditModal',
   data() {
+    const validateField = (fieldKey, message) => {
+      return (rule, value, callback) => {
+        let oriVal = this.mode === 'edit' ? this.oriForm[fieldKey] : undefined;
+        let values = this.suppliers.map(supplier => supplier[fieldKey]);
+        for (let val of values) {
+          if (value === val && val !== oriVal) {
+            callback(new Error(message));
+            return;
+          }
+        }
+        callback();
+      }
+    }
+
     return {
       modalVisible: this.visible,
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
       form: lodash.cloneDeep(newSupplier),
       rules:{
-
+        abbr: [
+          {trigger: ['change', 'blur'], required: true, message: '内容不能为空'},
+          {trigger: ['change', 'blur'], max: 10, message: '内容不能超过10个字符'},
+          {trigger: ['change', 'blur'], validator: validateField('abbr', '该供应商简称已存在')},
+        ],
+        fullname_zh: [
+          {trigger: ['change', 'blur'], required: true, message: '内容不能为空'},
+          {trigger: ['change', 'blur'], validator: validateField('fullname_zh', '该供应商中文全称已存在')}
+        ],
       },
     }
   },
@@ -132,6 +155,12 @@ export default {
       type: String,
       default() {
         return 'new';
+      }
+    },
+    suppliers: {
+      type: Array,
+      default() {
+        return [];
       }
     }
   },
@@ -166,8 +195,7 @@ export default {
       this.$emit('visibleChange', false);
     },
     doSave() {
-      this.form.address_en='haahahhahahha'
-      console.log(this.form, this.oriForm)
+      console.log(this.form)
     },
 
   },
