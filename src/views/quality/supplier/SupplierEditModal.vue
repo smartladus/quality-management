@@ -6,6 +6,7 @@
   @cancel='onCancel'
   :title='title'
   :width='800'
+  :destroy-on-close='false'
 >
   <a-form-model
     ref='supplierInfo'
@@ -13,12 +14,24 @@
     :rules='rules'
     :label-col="labelCol"
     :wrapper-col="wrapperCol"
+    class='modal-body'
   >
-    <a-divider>基础信息</a-divider>
     <a-form-model-item label="供应商简称" required prop='abbr'>
       <a-input v-model="form.abbr" placeholder="请输入供应商简称，不超过10个字符，不可重复" />
     </a-form-model-item>
-    <a-form-model-item label="统一信用编码">
+    <a-form-model-item label="供应商中文全称" required prop='fullname_zh'>
+      <a-input v-model="form.fullname_zh" placeholder="请输入供应商中文全称，不可重复" />
+    </a-form-model-item>
+    <a-form-model-item label="供应商中文地址" required prop='address_zh'>
+      <a-textarea v-model="form.address_zh" auto-size placeholder="请输入供应商中文地址" />
+    </a-form-model-item>
+    <a-form-model-item label="供应商英文全称" prop='fullname_en'>
+      <a-input v-model="form.fullname_en" placeholder="请输入供应商英文全称，不可重复" />
+    </a-form-model-item>
+    <a-form-model-item label="供应商英文地址" prop='address_en'>
+      <a-textarea v-model="form.address_en" auto-size placeholder="请输入供应商英文地址" />
+    </a-form-model-item>
+    <a-form-model-item required label="统一信用编码">
       <a-input v-model="form.company_id" placeholder="请输入供应商统一信用编码，一般在营业执照上可以找到" />
     </a-form-model-item>
     <a-form-model-item label="主供产品" required>
@@ -27,8 +40,51 @@
         v-model="form.main_products"
         placeholder="请选择该供应商主要供应产品"
       >
-        
       </a-select>
+    </a-form-model-item>
+    <a-form-model-item required label="150天内良率要求">
+      <a-input-number
+        :default-value="0"
+        :min="0"
+        :max="1"
+        :step="0.0001"
+        :formatter="value => `${Math.round(value*10000)/100}%`"
+        :parser="value => Math.round(value.replace('%', ''))/100"
+        v-model="form.dr_thr_150d"
+      />
+    </a-form-model-item>
+    <a-form-model-item required label="1年内良率要求">
+      <a-input-number
+        :default-value="0"
+        :min="0"
+        :max="1"
+        :step="0.0001"
+        :formatter="value => `${Math.round(value*10000)/100}%`"
+        :parser="value => Math.round(value.replace('%', ''))/100"
+        v-model="form.dr_thr_1y"
+      />
+    </a-form-model-item>
+    <a-form-model-item label="2年内良率要求">
+      <a-input-number
+        :default-value="0"
+        :min="0"
+        :max="1"
+        :step="0.0001"
+        :formatter="value => `${Math.round(value*10000)/100}%`"
+        :parser="value => Math.round(value.replace('%', ''))/100"
+        v-model="form.dr_thr_2y"
+      />
+    </a-form-model-item>
+    <a-form-model-item label="3年内良率要求">
+      <a-input-number
+        :default-value="0"
+        :min="0"
+        :max="1"
+        :step="0.0001"
+        :formatter="value => `${Math.round(value*10000)/100}%`"
+        :parser="value => Math.round(value.replace('%', ''))/100"
+        v-model="form.dr_thr_3y"
+      />
     </a-form-model-item>
   </a-form-model>
 </a-modal>
@@ -39,9 +95,9 @@ import lodash from 'lodash'
 
 const newSupplier = {
   abbr: undefined,
-  fullName_zh: undefined,
+  fullname_zh: undefined,
   address_zh: undefined,
-  fullName_en: undefined,
+  fullname_en: undefined,
   address_en: undefined,
   company_id: undefined,
   dr_thr_150d: undefined,
@@ -57,7 +113,7 @@ export default {
       modalVisible: this.visible,
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
-      form:undefined,
+      form: lodash.cloneDeep(newSupplier),
       rules:{
 
       },
@@ -90,12 +146,12 @@ export default {
         this.reloadSupplierInfo();
       }
     },
-    oriForm(val) {
+    oriForm() {
       this.reloadSupplierInfo();
     },
   },
   mounted() {
-
+    this.reloadSupplierInfo();
   },
   methods: {
     reloadSupplierInfo() {
@@ -112,11 +168,17 @@ export default {
     doSave() {
       this.form.address_en='haahahhahahha'
       console.log(this.form, this.oriForm)
-    }
+    },
+
   },
 }
 </script>
 
 <style scoped>
-
+.modal-body {
+  height: 500px;
+  overflow-y: auto;
+  margin: -24px;
+  padding-top: 18px;
+}
 </style>
